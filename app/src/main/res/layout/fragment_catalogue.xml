@@ -11,7 +11,7 @@
         layout="@layout/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@+id/searchBar_catalogue" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Search Bar -->
 
@@ -20,6 +20,7 @@
         android:id="@+id/searchBar_catalogue"
         android:layout_width="match_parent"
         android:layout_height="51dp"
+        android:layout_marginTop="15dp"
         android:background="@drawable/rounded_searchview"
         android:queryHint="Search store"
         app:iconifiedByDefault="false"

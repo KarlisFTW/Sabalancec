@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/categoryLayout"
     android:layout_width="150dp"
     android:layout_height="wrap_content"
     android:padding="10dp"
     android:orientation="vertical"
+    android:layout_marginTop="15dp"
     android:layout_marginEnd="16dp"
-    android:background="@android:color/white">
+    android:background="@drawable/rounded_background">
 
     <ImageView
         android:id="@+id/categoryImage"
         android:layout_width="100dp"
+        android:layout_marginTop="20dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
@@ -21,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColor="@color/black"
+        android:layout_marginBottom="15dp"
         android:text="Organic Banana"
         android:textStyle="bold"
         android:textSize="16sp" />

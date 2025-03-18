@@ -12,4 +12,7 @@
     <color name="yellow_green">#ECF87F</color>
     <color name="green">#59981A</color>
     <color name="gray">#F2F3F2</color>"
+    <color name="category_red">#F7A593</color>"
+    <color name="category_green">#8FD19F</color>"
+    <color name="category_beige">#F8E1C1</color>"
 </resources>

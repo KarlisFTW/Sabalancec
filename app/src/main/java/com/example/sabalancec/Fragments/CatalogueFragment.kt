@@ -1,16 +1,19 @@
 package com.example.sabalancec.Fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sabalancec.Adapter.Category
 import com.example.sabalancec.Adapter.CategoryAdapter
+import com.example.sabalancec.Activities.ProductActivity
 import com.example.sabalancec.R
 
 class CatalogueFragment : Fragment() {
@@ -34,10 +37,23 @@ class CatalogueFragment : Fragment() {
         // Initialize RecyclerView
         recyclerView = view.findViewById(R.id.recyclerViewCategories)
         recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        categoryAdapter = CategoryAdapter(categories)
+
+        // Initialize the adapter with the click listener
+        categoryAdapter = CategoryAdapter(
+            requireContext(),
+            categories
+        ) { category ->
+            // Implement the category click action here using Intent
+            Log.d("CatalogueFragment", "Category clicked: ${category.name}")
+
+            // Create an Intent to navigate to ProductActivity with the category name as extra
+            val intent = Intent(requireContext(), ProductActivity::class.java)
+            intent.putExtra("CATEGORY_NAME", category.name) // Pass the category name
+            startActivity(intent)
+        }
+
         recyclerView.adapter = categoryAdapter
         Log.e("CatalogueFragment", "RecyclerView initialized with ${categories.size} items")
-
 
         // Handle SearchView
         val searchView = view.findViewById<SearchView>(R.id.searchBar_catalogue)
@@ -52,6 +68,9 @@ class CatalogueFragment : Fragment() {
                 return true
             }
         })
+
+        val toolbar: Toolbar = view.findViewById(R.id.toolbar)
+        toolbar.title = "Find Products" // Set the title for the toolbar
 
         return view
     }
