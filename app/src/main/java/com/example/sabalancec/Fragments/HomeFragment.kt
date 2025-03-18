@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sabalancec.Data.Product
-import com.example.sabalancec.ProductAdapter.ProductAdapter
+import com.example.sabalancec.Adapter.ProductAdapter
 import com.example.sabalancec.R
 
 

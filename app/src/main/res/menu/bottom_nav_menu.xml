@@ -5,19 +5,19 @@
         android:icon="@drawable/ic_home"
         android:title="Home" />
     <item
-        android:id="@+id/nav_account"
+        android:id="@+id/nav_catalogue"
         android:icon="@drawable/ic_catalogue"
         android:title="Catalogue" />
     <item
-        android:id="@+id/nav_profile"
+        android:id="@+id/nav_cart"
         android:icon="@drawable/ic_cart"
         android:title="Cart" />
     <item
-        android:id="@+id/nav_settings"
+        android:id="@+id/nav_allergens"
         android:icon="@drawable/ic_allergens"
         android:title="Allergens" />
     <item
-        android:id="@+id/nav_notifications"
+        android:id="@+id/nav_account"
         android:icon="@drawable/ic_account"
         android:title="Account" />
 </menu>

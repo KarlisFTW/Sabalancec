@@ -1,4 +1,4 @@
-package com.example.sabalancec.ProductAdapter
+package com.example.sabalancec.Adapter
 
 import android.view.LayoutInflater
 import android.view.View

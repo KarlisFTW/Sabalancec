@@ -26,7 +26,6 @@
         android:layout_marginTop="25dp"
         android:background="@drawable/rounded_searchview"
         android:queryHint="Search store"
-        style="@style/SearchView"
         app:iconifiedByDefault="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
