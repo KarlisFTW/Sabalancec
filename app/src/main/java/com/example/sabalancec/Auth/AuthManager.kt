@@ -26,6 +26,7 @@ class AuthManager private constructor(context: Context) {
     private val KEY_TOKEN_EXPIRY = "token_expiry"
     private val KEY_USER_ID = "user_id"
     private val KEY_USER_EMAIL = "user_email"
+    private val KEY_USER_ADDRESS = "user_address"
     private val KEY_USER_FULL_NAME = "user_full_name"
 
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -148,38 +149,55 @@ class AuthManager private constructor(context: Context) {
         }
     }
 
-    // Get user profile
+    // Method to get user profile from API
     suspend fun getUserProfile(): UserResponse? {
-        if (!isTokenValid()) {
-            val refreshed = refreshToken()
-            if (!refreshed) return null
-        }
-
         return try {
-            val token = "Bearer ${getAccessToken()}"
+            val token = "${getAccessToken()}"
+            Log.d(TAG, "Attempting to get user profile with token")
             val response = apiService.getUserProfile(token)
 
             if (response.isSuccessful) {
-                response.body()
+                val userProfile = response.body()
+                // Save profile data if response is successful
+                userProfile?.let { saveUserProfileToPreferences(it) }
+                userProfile
             } else {
-                Log.e(TAG, "Failed to get user profile: ${response.errorBody()?.string()}")
-                null
+                // Check if token expired
+                val errorBody = response.errorBody()?.string()
+                Log.e(TAG, "Failed to get user profile before trying to refresh: $errorBody")
+
+                if (errorBody?.contains("AccessTokenExpired") == true || errorBody?.contains("AccessTokenInvalid") == true) {
+                    // Try to refresh the token
+                    val refreshed = refreshToken()
+                    if (refreshed) {
+                        // Retry with new token
+                        val newToken = "${getAccessToken()}"
+                        val newResponse = apiService.getUserProfile(newToken)
+                        if (newResponse.isSuccessful) {
+                            val userProfile = newResponse.body()
+                            // Save profile data after token refresh
+                            userProfile?.let { saveUserProfileToPreferences(it) }
+                            userProfile
+                        } else {
+                            null
+                        }
+                    } else {
+                        null
+                    }
+                } else {
+                    null
+                }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting user profile: ${e.message}")
+            Log.e(TAG, "Error getting user profile after trying to refresh: ${e.message}")
             null
         }
     }
 
-    // Update user profile
+    // Update profile with proper token format
     suspend fun updateUserProfile(fullName: String, email: String, address: String): Boolean {
-        if (!isTokenValid()) {
-            val refreshed = refreshToken()
-            if (!refreshed) return false
-        }
-
         return try {
-            val token = "Bearer ${getAccessToken()}"
+            val token = "${getAccessToken()}"
             val updateRequest = mapOf(
                 "fullName" to fullName,
                 "email" to email,
@@ -189,16 +207,45 @@ class AuthManager private constructor(context: Context) {
             val response = apiService.updateUserProfile(token, updateRequest)
 
             if (response.isSuccessful) {
-                // Update stored user details
-                sharedPreferences.edit().apply {
-                    putString(KEY_USER_EMAIL, email)
-                    putString(KEY_USER_FULL_NAME, fullName)
-                    apply()
-                }
+                // Create a UserResponse object and save it
+                val userProfile = UserResponse(
+                    id = getUserId() ?: "",
+                    fullName = fullName,
+                    email = email,
+                    address = address
+                )
+                saveUserProfileToPreferences(userProfile)
                 true
             } else {
-                Log.e(TAG, "Failed to update profile: ${response.errorBody()?.string()}")
-                false
+                val errorBody = response.errorBody()?.string()
+                Log.e(TAG, "Failed to update profile: $errorBody")
+
+                if (errorBody?.contains("AccessTokenExpired") == true) {
+                    // Try to refresh the token
+                    val refreshed = refreshToken()
+                    if (refreshed) {
+                        // Retry with new token
+                        val newToken = "${getAccessToken()}"
+                        val newResponse = apiService.updateUserProfile(newToken, updateRequest)
+                        if (newResponse.isSuccessful) {
+                            // Create a UserResponse object and save it
+                            val userProfile = UserResponse(
+                                id = getUserId() ?: "",
+                                fullName = fullName,
+                                email = email,
+                                address = address
+                            )
+                            saveUserProfileToPreferences(userProfile)
+                            true
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error updating profile: ${e.message}")
@@ -206,13 +253,42 @@ class AuthManager private constructor(context: Context) {
         }
     }
 
-    // Check if token is valid
-    fun isTokenValid(): Boolean {
+    // Use the improved validation in other methods
+    suspend fun getUserProfileSafe(): UserResponse? {
+        if (!validateToken()) {
+            Log.e("Token Error", "Token is invalid")
+            return null
+        }
+
+        return getUserProfile()
+    }
+
+    // Improved token validation - now checks with the server if needed
+    suspend fun validateToken(): Boolean {
+        // First check local expiry
         val expiryTime = sharedPreferences.getLong(KEY_TOKEN_EXPIRY, 0)
         val accessToken = sharedPreferences.getString(KEY_ACCESS_TOKEN, null)
+        Log.d("expiryTime", (System.currentTimeMillis() >= expiryTime).toString())
+        Log.d("accessToken", accessToken.toString())
 
-        // Check if token exists and hasn't expired
-        return accessToken != null && System.currentTimeMillis() < expiryTime
+        // If no token exists or local expiry suggests it's expired
+        if (accessToken == null || System.currentTimeMillis() >= expiryTime) {
+            // Try refreshing the token
+            Log.d("Token Error", "Token expired, trying to refresh")
+            return refreshToken()
+        }
+
+        // Optionally, perform a lightweight API call to validate the token
+        // This is useful if the server might invalidate tokens before their expiry time
+        try {
+            val token = "$accessToken"
+            val response = apiService.getUserProfile(token)
+            Log.d("API Token Response", response.toString())
+            return response.isSuccessful
+        } catch (e: Exception) {
+            Log.e(TAG, "Error validating token: ${e.message}")
+            return false
+        }
     }
 
     // Get authenticated user ID
@@ -230,6 +306,11 @@ class AuthManager private constructor(context: Context) {
         return sharedPreferences.getString(KEY_USER_FULL_NAME, null)
     }
 
+    fun getUserAddress(): String? {
+        Log.d("User Address", sharedPreferences.getString(KEY_USER_ADDRESS, null).toString())
+        return sharedPreferences.getString(KEY_USER_ADDRESS, null)
+    }
+
     // Get access token
     fun getAccessToken(): String? {
         return sharedPreferences.getString(KEY_ACCESS_TOKEN, null)
@@ -241,17 +322,33 @@ class AuthManager private constructor(context: Context) {
     }
 
     // Save authentication details to SharedPreferences
-    private fun saveAuthDetails(authResponse: AuthResponse) {
+    private suspend fun saveAuthDetails(authResponse: AuthResponse) {
+        val userAddress = getUserProfileSafe()?.address
+        Log.d("User Address", userAddress.toString())
         sharedPreferences.edit().apply {
             putString(KEY_ACCESS_TOKEN, authResponse.accessToken)
             putString(KEY_REFRESH_TOKEN, authResponse.refreshToken)
             putString(KEY_USER_ID, authResponse.id)
             putString(KEY_USER_EMAIL, authResponse.email)
             putString(KEY_USER_FULL_NAME, authResponse.fullName)
+            putString(KEY_USER_ADDRESS, userAddress)
             // Set expiry time (assuming 1 hour validity)
             putLong(KEY_TOKEN_EXPIRY, System.currentTimeMillis() + 3600 * 1000)
             apply()
         }
+    }
+
+    // New method to save user profile to SharedPreferences
+    fun saveUserProfileToPreferences(userProfile: UserResponse) {
+        sharedPreferences.edit().apply {
+            putString(KEY_USER_EMAIL, userProfile.email)
+            putString(KEY_USER_FULL_NAME, userProfile.fullName)
+            putString(KEY_USER_ADDRESS, userProfile.address)
+            putString(KEY_USER_ID, userProfile.id)
+
+            apply()
+        }
+        Log.d(TAG, "User profile data saved to SharedPreferences")
     }
 
     // Clear authentication details

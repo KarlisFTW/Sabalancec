@@ -5,35 +5,48 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.sabalancec.Auth.AuthManager
 import com.example.sabalancec.Fragments.AuthOptionsFragment
 import com.example.sabalancec.R
 import com.example.sabalancec.Auth.models.AuthResponse
 import com.example.sabalancec.Fragments.HomeFragment
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val authenticationFragment = R.id.frag_authScreens
-        val whenLoggedInFragment = R.id.fragment_container
+        setContentView(R.layout.activity_auth)  // Set default layout
 
-        //Check if the user has authenticated
+        val authenticationFragment = R.id.frag_authScreens
         val authManager = AuthManager.getInstance(this)
-        if (authManager.isTokenValid()) {
-            // User is already logged in, navigate to the main content
-//            setContentView(R.layout.activity_when_logged_in)
-//            loadFragment(HomeFragment(), whenLoggedInFragment)
-//            return
-            val intent = Intent(this, WhenLoggedIn::class.java)
-            startActivity(intent)
-        }
-        else
-        {
-            // User is not logged in, navigate to the authentication screens
-            setContentView(R.layout.activity_auth)
+
+        // First quick check with local data only
+        if (authManager.getAccessToken() != null) {
+            // Token exists, launch coroutine to properly validate it
+            lifecycleScope.launch {
+                val isTokenValid = try {
+                    authManager.validateToken()
+                } catch (e: Exception) {
+                    false
+                }
+
+                if (isTokenValid) {
+                    // Valid token, navigate to main screen
+                    val intent = Intent(this@MainActivity, WhenLoggedIn::class.java)
+                    startActivity(intent)
+                    finish()  // Close MainActivity
+                } else {
+                    // Invalid token, show auth fragment
+                    loadFragment(AuthOptionsFragment(), authenticationFragment)
+                }
+            }
+        } else {
+            // No token, load auth fragment immediately
             loadFragment(AuthOptionsFragment(), authenticationFragment)
         }
+
 
 
 
