@@ -33,10 +33,12 @@ class AccountFragment : Fragment() {
         authManager = AuthManager.getInstance(requireContext())
 
         // Display basic info immediately from SharedPreferences
-        displayBasicUserInfo()
+        //displayBasicUserInfo()
 
-        // Fetch complete profile from API
-        fetchUserProfile()
+//        // Fetch complete profile from API
+//        fetchUserProfile()
+
+        //TODO: Make it so when you drag down on the fragment it refreshes the data
 
         return view
     }
@@ -80,6 +82,6 @@ class AccountFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         // Refresh profile data when fragment becomes visible
-        fetchUserProfile()
+        displayBasicUserInfo()
     }
 }

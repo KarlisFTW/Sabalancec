@@ -16,6 +16,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Date
 import java.util.concurrent.TimeUnit
+import androidx.core.content.edit
 
 class AuthManager private constructor(context: Context) {
     private val TAG = "AuthManager"
@@ -150,7 +151,7 @@ class AuthManager private constructor(context: Context) {
     }
 
     // Method to get user profile from API
-    suspend fun getUserProfile(): UserResponse? {
+    private suspend fun getUserProfile(): UserResponse? {
         return try {
             val token = "${getAccessToken()}"
             Log.d(TAG, "Attempting to get user profile with token")
@@ -323,19 +324,17 @@ class AuthManager private constructor(context: Context) {
 
     // Save authentication details to SharedPreferences
     private suspend fun saveAuthDetails(authResponse: AuthResponse) {
-        val userAddress = getUserProfileSafe()?.address
-        Log.d("User Address", userAddress.toString())
         sharedPreferences.edit().apply {
             putString(KEY_ACCESS_TOKEN, authResponse.accessToken)
             putString(KEY_REFRESH_TOKEN, authResponse.refreshToken)
             putString(KEY_USER_ID, authResponse.id)
             putString(KEY_USER_EMAIL, authResponse.email)
             putString(KEY_USER_FULL_NAME, authResponse.fullName)
-            putString(KEY_USER_ADDRESS, userAddress)
             // Set expiry time (assuming 1 hour validity)
             putLong(KEY_TOKEN_EXPIRY, System.currentTimeMillis() + 3600 * 1000)
             apply()
         }
+        getUserProfile()
     }
 
     // New method to save user profile to SharedPreferences
@@ -353,7 +352,7 @@ class AuthManager private constructor(context: Context) {
 
     // Clear authentication details
     private fun clearAuthDetails() {
-        sharedPreferences.edit().clear().apply()
+        sharedPreferences.edit() { clear() }
     }
 
     companion object {
