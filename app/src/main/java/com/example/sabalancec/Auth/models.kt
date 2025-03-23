@@ -8,6 +8,11 @@ data class RegisterRequest(
     val password: String
 )
 
+data class ApiResponse(
+    val success: Boolean,
+    val message: String? = null
+)
+
 data class LoginRequest(
     val email: String,
     val password: String

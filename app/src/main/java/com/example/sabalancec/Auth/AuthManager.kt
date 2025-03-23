@@ -17,6 +17,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import androidx.core.content.edit
+import com.example.sabalancec.Auth.models.ApiResponse
 
 class AuthManager private constructor(context: Context) {
     private val TAG = "AuthManager"
@@ -52,21 +53,23 @@ class AuthManager private constructor(context: Context) {
     }
 
     // Method to register a new user
-    suspend fun register(fullName: String, email: String, address: String, password: String): Boolean {
+    suspend fun register(fullName: String, email: String, address: String, password: String): ApiResponse {
         return try {
             val request = RegisterRequest(null, fullName, email, address, password)
             val response = apiService.register(request)
 
             if (response.isSuccessful) {
                 Log.d(TAG, "Registration successful")
-                true
+                val loginResult = login(email, password)
+                ApiResponse(success = true, message = "Registration successful")
             } else {
-                Log.e(TAG, "Registration failed: ${response.errorBody()?.string()}")
-                false
+                val errorBody = response.errorBody()
+                Log.e(TAG, "Registration failed: $errorBody")
+                ApiResponse(success = false, message = errorBody.toString())
             }
         } catch (e: Exception) {
             Log.e(TAG, "Registration error: ${e.message}")
-            false
+            ApiResponse(success = false, message = e.message ?: "Network or server error occurred")
         }
     }
 
