@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.DatePicker
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -53,7 +54,7 @@ class SignUpFragment: Fragment() {
 
     // Button
     private lateinit var signUpButton: MaterialButton
-    private lateinit var signInPrompt: View
+    private lateinit var signInLink: TextView
 
     // Auth
     private lateinit var authManager: AuthManager
@@ -80,6 +81,15 @@ class SignUpFragment: Fragment() {
         // Initialize views
         dobInputLayout = view.findViewById(R.id.txtfield_dob)
         dobInput = view.findViewById(R.id.et_dob)
+
+        // Set up the sign in link
+        signInLink = view.findViewById(R.id.tv_signin_link)
+        signInLink.setOnClickListener {
+            // Replace current fragment with SignInFragment
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frag_authScreens, SignInFragment())
+                .commit()
+        }
 
         // Set up date picker
         setupDatePicker()
@@ -155,7 +165,6 @@ class SignUpFragment: Fragment() {
 
         // Button
         signUpButton = view.findViewById(R.id.btn_signin)
-        signInPrompt = view.findViewById(R.id.tv_signup_prompt)
     }
 
     private fun setupValidationListeners() {

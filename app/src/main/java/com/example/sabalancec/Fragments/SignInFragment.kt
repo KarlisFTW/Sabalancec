@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.sabalancec.Activities.WhenLoggedIn
@@ -26,6 +27,7 @@ class SignInFragment : Fragment() {
     private lateinit var passwordInput: TextInputEditText
     private lateinit var signInButton: MaterialButton
     private lateinit var authManager: AuthManager
+    private lateinit var signUpLink: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,6 +48,15 @@ class SignInFragment : Fragment() {
         // Set up sign in button click listener
         signInButton.setOnClickListener {
             attemptLogin()
+        }
+
+        // Set up the sign up link
+        signUpLink = view.findViewById(R.id.tv_signup_link)
+        signUpLink.setOnClickListener {
+            // Replace current fragment with SignUpFragment
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.frag_authScreens, SignUpFragment())
+                .commit()
         }
 
         return view

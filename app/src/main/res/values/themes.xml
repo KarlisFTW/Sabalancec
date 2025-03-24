@@ -10,11 +10,24 @@
         <item name="android:windowBackground">#FFFFFF</item>
         <item name="android:colorBackground">#FFFFFF</item>
 
-        <!-- Toolbar Style -->
-        <item name="actionBarStyle">@style/CustomToolbar</item>
 
 
     </style>
+
+
+<!--    <style name="Theme.App.Starting" parent="Theme.SplashScreen">-->
+<!--        &lt;!&ndash; Use your custom drawable as the background &ndash;&gt;-->
+<!--        <item name="windowSplashScreenBackground">@color/olive_green</item>-->
+
+<!--        &lt;!&ndash; Use your logo drawable &ndash;&gt;-->
+<!--        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>-->
+
+<!--        &lt;!&ndash; Optional: Control the animation duration &ndash;&gt;-->
+<!--        <item name="windowSplashScreenAnimationDuration">1000</item>-->
+
+<!--        &lt;!&ndash; Set the theme used for the actual app once the splash screen is gone &ndash;&gt;-->
+<!--        <item name="postSplashScreenTheme">@style/Theme.Sabalancec</item>-->
+<!--    </style>-->
 
     <!-- Custom Toolbar Style -->
     <style name="CustomToolbar" parent="Widget.MaterialComponents.Toolbar">

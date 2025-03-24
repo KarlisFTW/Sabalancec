@@ -3,6 +3,7 @@ package com.example.sabalancec.Activities
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -12,10 +13,16 @@ import com.example.sabalancec.R
 import com.example.sabalancec.Auth.models.AuthResponse
 import com.example.sabalancec.Fragments.HomeFragment
 import kotlinx.coroutines.launch
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Optional: if you need to keep the splash screen visible longer
+        // splashScreen.setKeepOnScreenCondition { true }
+        // Later call: yourCondition = false (when ready to dismiss)
 
         setContentView(R.layout.activity_auth)  // Set default layout
 

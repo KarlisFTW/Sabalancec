@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Large white circle -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFF" />
+            <!-- Make this as large as possible -->
+            <size android:width="1000dp" android:height="1000dp" />
+        </shape>
+    </item>
+
+    <!-- Your logo in the center -->
+    <item android:gravity="center" android:width="120dp" android:height="120dp">
+        <bitmap android:src="@drawable/logo" />
+    </item>
+</layer-list>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+            <!-- Use your custom drawable as the background -->
+            <item name="windowSplashScreenBackground">@color/olive_green</item>
+
+            <!-- Use your logo drawable -->
+            <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+
+            <!-- Optional: Control the animation duration -->
+            <item name="windowSplashScreenAnimationDuration">1000</item>
+
+            <!-- Set the theme used for the actual app once the splash screen is gone -->
+            <item name="postSplashScreenTheme">@style/Theme.Sabalancec</item>
+        </style>
+</resources>
