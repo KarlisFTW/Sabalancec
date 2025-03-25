@@ -35,6 +35,11 @@
         <item name="android:titleTextColor">#FFFFFF</item>
     </style>
 
+    <style name="CircleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <!-- Bottom Navigation Item Colors -->
 
 </resources>

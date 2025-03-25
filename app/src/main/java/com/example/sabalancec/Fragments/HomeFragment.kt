@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sabalancec.Data.Product
 import com.example.sabalancec.Adapter.ProductAdapter
 import com.example.sabalancec.R
+import com.example.sabalancec.models.Review
 
 
 class HomeFragment : Fragment() {
@@ -27,8 +28,42 @@ class HomeFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         val productList = listOf(
-            Product(R.drawable.bananas, "Organic Banana", "500g", "$2.99"),
-            Product(R.drawable.apple, "Red Apple", "1kg", "$3.49"),
+            Product(
+                R.drawable.bananas,
+                "Organic Banana",
+                "500g",
+                "$2.99",
+                "Fresh organic bananas sourced from local farms. Perfect for snacks, smoothies, or baking.",
+                mapOf(
+                    "Calories" to "89 kcal",
+                    "Protein" to "1.1g",
+                    "Carbohydrates" to "22.8g",
+                    "Fat" to "0.3g",
+                    "Fiber" to "2.6g"
+                ),
+                listOf(
+                    Review("John D.", 4.5f, "USA"),
+                    Review("Mary S.", 5.0f, "Sus")
+                )
+            ),
+            Product(
+                R.drawable.apple,
+                "Red Apple",
+                "1kg",
+                "$3.49",
+                "Crisp and juicy red apples. Rich in antioxidants and dietary fiber.",
+                mapOf(
+                    "Calories" to "52 kcal",
+                    "Protein" to "0.3g",
+                    "Carbohydrates" to "14g",
+                    "Fat" to "0.2g",
+                    "Fiber" to "2.4g"
+                ),
+                listOf(
+                    Review("Sarah M.", 4.0f, "CountryLol"),
+                    Review("Michael R.", 5.0f, "Nigeria")
+                )
+            ),
             Product(R.drawable.walnuts, "Walnuts", "200g", "$4.99"),
             Product(R.drawable.chickpeas, "Chickpeas", "500g", "$3.29"),
             Product(R.drawable.nectarin, "Nectarine", "1kg", "$5.49"),
