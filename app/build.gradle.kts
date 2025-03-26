@@ -52,4 +52,6 @@ dependencies {
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.hbb20:ccp:2.6.0")
     implementation (libs.androidx.core.splashscreen)
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.androidx.swiperefreshlayout)
 }

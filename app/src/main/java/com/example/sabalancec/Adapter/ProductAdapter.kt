@@ -8,11 +8,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.sabalancec.Activities.ProductDetails
-import com.example.sabalancec.Data.Product
+import com.example.sabalancec.Products.Product
 import com.example.sabalancec.R
 
-class ProductAdapter(private val productList: List<Product>) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
+class ProductAdapter(private var productList: List<Product>) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val productImage: ImageView = view.findViewById(R.id.productImage)
@@ -30,10 +31,23 @@ class ProductAdapter(private val productList: List<Product>) : RecyclerView.Adap
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         val product = productList[position]
+
+        // Load image from URL using Glide or similar library
+        if (product.image.isNotEmpty()) {
+            Glide.with(holder.itemView.context)
+                .load("https://rsc97lvk0erlhrp-y8b9c67gtggi5fdi.adb.eu-zurich-1.oraclecloudapps.com/ords/warehouse/images/" + product.image)
+                .placeholder(R.drawable.carrot)
+                .error(com.hbb20.R.drawable.flag_botswana)
+                .into(holder.productImage)
+        } else {
+            // Use resource ID as fallback
+            holder.productImage.setImageResource(product.imageRes)
+        }
+
         holder.productImage.setImageResource(product.imageRes)
         holder.productName.text = product.name
         holder.productAmount.text = product.amount
-        holder.productPrice.text = product.price
+        holder.productPrice.text = "$"+product.price.toString()
 
         holder.addToCartButton.setOnClickListener {
             Toast.makeText(holder.itemView.context, "${product.name} added to cart!", Toast.LENGTH_SHORT).show()
@@ -47,6 +61,10 @@ class ProductAdapter(private val productList: List<Product>) : RecyclerView.Adap
             }
             context.startActivity(intent)
         }
+    }
+    fun updateProducts(newProducts: List<Product>) {
+        this.productList = newProducts
+        notifyDataSetChanged()
     }
 
     override fun getItemCount() = productList.size

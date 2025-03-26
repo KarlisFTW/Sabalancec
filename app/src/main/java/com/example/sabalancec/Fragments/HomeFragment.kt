@@ -4,19 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.sabalancec.Data.Product
 import com.example.sabalancec.Adapter.ProductAdapter
+import com.example.sabalancec.Products.Product
 import com.example.sabalancec.R
-import com.example.sabalancec.models.Review
-
+import com.example.sabalancec.Products.ProductRepository
+import kotlinx.coroutines.launch
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.sabalancec.Products.ProductCache
 
 class HomeFragment : Fragment() {
-
-    private lateinit var recyclerView: RecyclerView
     private lateinit var productAdapter: ProductAdapter
+    private lateinit var productRepository: ProductRepository
+    private var isDataLoaded = false
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,85 +29,73 @@ class HomeFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        recyclerView = view.findViewById(R.id.productRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-        val productList = listOf(
-            Product(
-                R.drawable.bananas,
-                "Organic Banana",
-                "500g",
-                "$2.99",
-                "Fresh organic bananas sourced from local farms. Perfect for snacks, smoothies, or baking.",
-                mapOf(
-                    "Calories" to "89 kcal",
-                    "Protein" to "1.1g",
-                    "Carbohydrates" to "22.8g",
-                    "Fat" to "0.3g",
-                    "Fiber" to "2.6g"
-                ),
-                listOf(
-                    Review("John D.", 4.5f, "USA"),
-                    Review("Mary S.", 5.0f, "Sus")
-                )
-            ),
-            Product(
-                R.drawable.apple,
-                "Red Apple",
-                "1kg",
-                "$3.49",
-                "Crisp and juicy red apples. Rich in antioxidants and dietary fiber.",
-                mapOf(
-                    "Calories" to "52 kcal",
-                    "Protein" to "0.3g",
-                    "Carbohydrates" to "14g",
-                    "Fat" to "0.2g",
-                    "Fiber" to "2.4g"
-                ),
-                listOf(
-                    Review("Sarah M.", 4.0f, "CountryLol"),
-                    Review("Michael R.", 5.0f, "Nigeria")
-                )
-            ),
-            Product(R.drawable.walnuts, "Walnuts", "200g", "$4.99"),
-            Product(R.drawable.chickpeas, "Chickpeas", "500g", "$3.29"),
-            Product(R.drawable.nectarin, "Nectarine", "1kg", "$5.49"),
-            Product(R.drawable.apple, "Apple", "1kg", "$3.49"),
-            Product(R.drawable.garlic, "Garlic", "100g", "$2.49"),
-            Product(R.drawable.pomegranate, "Pomegranate", "500g", "$6.99"),
-            Product(R.drawable.cashews, "Cashews", "250g", "$7.99"),
-            Product(R.drawable.chia_seeds, "Chia Seeds", "200g", "$4.59"),
-            Product(R.drawable.pine_nuts, "Pine Nuts", "100g", "$6.89"),
-            Product(R.drawable.brazil_nuts, "Brazil Nuts", "150g", "$5.19"),
-            Product(R.drawable.dragonfruit, "Dragonfruit", "1kg", "$8.49"),
-            Product(R.drawable.blueberries, "Blueberries", "150g", "$3.79"),
-            Product(R.drawable.cucumber, "Cucumber", "500g", "$2.49"),
-            Product(R.drawable.kiwi, "Kiwi", "4pcs", "$3.99"),
-            Product(R.drawable.tomato, "Tomato", "500g", "$2.69"),
-            Product(R.drawable.almonds, "Almonds", "250g", "$5.49"),
-            Product(R.drawable.hazelnuts, "Hazelnuts", "200g", "$4.99"),
-            Product(R.drawable.appricot, "Apricot", "500g", "$6.29"),
-            Product(R.drawable.mango, "Mango", "1kg", "$4.79"),
-            Product(R.drawable.bell_pepper, "Bell Pepper", "500g", "$3.49"),
-            Product(R.drawable.carrot, "Carrot", "1kg", "$2.29"),
-            Product(R.drawable.bananas, "Bananas", "1kg", "$2.89"),
-            Product(R.drawable.potato, "Potato", "1kg", "$1.99"),
-            Product(R.drawable.avocado, "Avocado", "2pcs", "$5.99"),
-            Product(R.drawable.spinach, "Spinach", "200g", "$3.29"),
-            Product(R.drawable.lentils, "Lentils", "500g", "$2.79"),
-            Product(R.drawable.peach, "Peach", "500g", "$4.29"),
-            Product(R.drawable.quinoa, "Quinoa", "500g", "$7.49"),
-            Product(R.drawable.egg, "Eggs", "1 dozen", "$2.99"),
-            Product(R.drawable.pineapple, "Pineapple", "1pc", "$3.59"),
-            Product(R.drawable.pistachios, "Pistachios", "250g", "$8.29"),
-            Product(R.drawable.strawberries, "Strawberries", "200g", "$4.99"),
-            Product(R.drawable.pear, "Pear", "1kg", "$3.19")
-        )
-
-
-        productAdapter = ProductAdapter(productList)
-        recyclerView.adapter = productAdapter
+        productRepository = ProductRepository()
+        setupRecyclerView(view)
+        setupSwipeRefresh(view)
 
         return view
     }
+
+    private fun setupSwipeRefresh(view: View) {
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setOnRefreshListener {
+            // Clear cache and reload products with forceRefresh set to true
+            ProductCache.clearCache()
+            loadProducts(true)
+        }
+        swipeRefreshLayout.setColorSchemeResources(
+            R.color.lime_green,
+            android.R.color.holo_green_light,
+            android.R.color.holo_orange_light
+        )
+    }
+
+    private fun loadProducts(forceRefresh: Boolean = false) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val products = productRepository.getProducts(forceRefresh)
+                (view?.findViewById<RecyclerView>(R.id.productRecyclerView)?.adapter as? ProductAdapter)?.
+                let { adapter ->
+                    updateAdapterData(adapter, products)
+                }
+                isDataLoaded = true
+            } catch (e: Exception) {
+                Toast.makeText(context, "Error loading products: ${e.message}", Toast.LENGTH_LONG).show()
+            } finally {
+                swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (!isDataLoaded) {
+            loadProducts()
+        }
+    }
+
+    private fun setupRecyclerView(view: View) {
+        val recyclerView = view.findViewById<RecyclerView>(R.id.productRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        productAdapter = ProductAdapter(emptyList()) // Start with empty list
+        recyclerView.adapter = productAdapter
+    }
+
+
+    private fun updateAdapterData(adapter: ProductAdapter, products: List<Product>) {
+        // Add a method to your ProductAdapter class to update data
+        if (adapter is ProductAdapter) {
+            adapter.updateProducts(products)
+        }
+    }
+
+
+//    private fun loadHardcodedProducts() {
+//        // Your existing hardcoded products as fallback
+//        val hardcodedProducts = listOf(
+
+//        )
+//        productAdapter = ProductAdapter(hardcodedProducts)
+//        view?.findViewById<RecyclerView>(R.id.productRecyclerView)?.adapter = productAdapter
+//    }
 }

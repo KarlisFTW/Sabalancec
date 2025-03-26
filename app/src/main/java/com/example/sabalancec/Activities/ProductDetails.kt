@@ -1,6 +1,7 @@
 package com.example.sabalancec.Activities
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -8,8 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sabalancec.Adapter.ExpandableItemAdapter
-import com.example.sabalancec.Data.Product
-import com.example.sabalancec.Fragments.HomeFragment
+import com.example.sabalancec.Products.Product
 import com.example.sabalancec.R
 import com.example.sabalancec.models.ExpandableItem
 import android.widget.ImageView
@@ -57,8 +57,9 @@ class ProductDetails : AppCompatActivity() {
             productImage = product.imageRes
             productName = product.name
             productAmount = product.amount
-            productPrice = product.price
-            productDescription = product.description
+            productPrice = "$"+product.price
+            //if description is empty, set it to a default value
+            productDescription = product.description.ifEmpty { "No description available for $productName" }
         }
     }
 
@@ -104,59 +105,8 @@ class ProductDetails : AppCompatActivity() {
     }
 
     private fun getReviewsData(): List<Review> {
+        Log.d("ProductDetails", "Product category: ${product.categoryName}")
+        Log.d("ProductDetails", "Product Reviews: ${product.reviews}")
         return product.reviews
     }
-
-//    private fun getProductFromId(id: Int): Product? {
-//        // In a real app, you would fetch this from a database or singleton data source
-//        // This is a simplified example where we're recreating the list
-//        // (In a production app, you'd use a ViewModel, Repository, or other data source)
-//        val productList = createProductList()
-//        return if (id >= 0 && id < productList.size) productList[id] else null
-//    }
-//
-//    // Temporary function to recreate the product list - in a real app,
-//    // you would use a proper data management system
-//    private fun createProductList(): List<Product> {
-//        // Copy the same list as in HomeFragment
-//        return listOf(
-//            Product(
-//                R.drawable.bananas,
-//                "Organic Banana",
-//                "500g",
-//                "$2.99",
-//                "Fresh organic bananas sourced from local farms. Perfect for snacks, smoothies, or baking.",
-//                mapOf(
-//                    "Calories" to "89 kcal",
-//                    "Protein" to "1.1g",
-//                    "Carbohydrates" to "22.8g",
-//                    "Fat" to "0.3g",
-//                    "Fiber" to "2.6g"
-//                ),
-//                listOf(
-//                    Review("John D.", 4.5f, "Great product! Would buy again."),
-//                    Review("Mary S.", 5.0f, "Always fresh and delicious.")
-//                )
-//            ),
-//            Product(
-//                R.drawable.apple,
-//                "Red Apple",
-//                "1kg",
-//                "$3.49",
-//                "Crisp and juicy red apples. Rich in antioxidants and dietary fiber.",
-//                mapOf(
-//                    "Calories" to "52 kcal",
-//                    "Protein" to "0.3g",
-//                    "Carbohydrates" to "14g",
-//                    "Fat" to "0.2g",
-//                    "Fiber" to "2.4g"
-//                ),
-//                listOf(
-//                    Review("Sarah M.", 4.0f, "Good quality apples, but a few had bruises."),
-//                    Review("Michael R.", 5.0f, "Delicious and crisp!")
-//                )
-//            )
-//            // Add more products as needed
-//        )
-//    }
 }
