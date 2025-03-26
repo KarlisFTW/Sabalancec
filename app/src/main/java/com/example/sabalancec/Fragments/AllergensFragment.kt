@@ -1,7 +1,7 @@
 package com.example.sabalancec.Fragments
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sabalancec.Adapter.AllergenAdapter
 import com.example.sabalancec.AllergenApi.ApiClient
 import com.example.sabalancec.R
+import com.example.sabalancec.Activities.AllergenDetailActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,40 +26,44 @@ class AllergensFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_allergens, container, false)
+    ): View {
+        return inflater.inflate(R.layout.fragment_allergens, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = view.findViewById(R.id.recycler_allergens)
+        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
+
         fetchAllergens()
-        return view
     }
 
     private fun fetchAllergens() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val response = ApiClient.warehouseApiService.getAllergens()
-                if (response.isSuccessful && response.body() != null) {
-                    val allergens = response.body()!!.items
-                    Log.d("AllergensFragment", "Fetched ${allergens.size} allergens")
+                val allergens = response.body()?.items
 
-                    withContext(Dispatchers.Main) {
-                        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-
-                        adapter = AllergenAdapter(allergens)
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && allergens != null) {
+                        adapter = AllergenAdapter(allergens) { selectedAllergen ->
+                            val intent = Intent(requireContext(), AllergenDetailActivity::class.java)
+                            intent.putExtra("allergen", selectedAllergen)
+                            startActivity(intent)
+                        }
                         recyclerView.adapter = adapter
-
-                        Toast.makeText(requireContext(), "Loaded ${allergens.size} allergens", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(requireContext(), "Failed to load allergens", Toast.LENGTH_SHORT).show()
+                    } else {
+                        showToast("Failed to load allergens")
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    showToast("Error: ${e.message}")
                 }
             }
         }
     }
 
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
 }

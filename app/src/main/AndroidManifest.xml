@@ -33,6 +33,9 @@
         <activity android:name=".Activities.WhenLoggedIn"/>
         <activity android:name=".Activities.AddPhoneNumberActivity"/>
         <activity android:name=".Activities.ProductActivity"/>
+        <activity android:name=".Activities.AllergenDetailActivity" />
+
+
     </application>
 
 

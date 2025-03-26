@@ -9,13 +9,29 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.sabalancec.Data.Allergen
 import com.example.sabalancec.R
 
-class AllergenAdapter(private val items: List<Allergen>) :
-    RecyclerView.Adapter<AllergenAdapter.AllergenViewHolder>() {
+class AllergenAdapter(
+    private val items: List<Allergen>,
+    private val onItemClick: (Allergen) -> Unit
+) : RecyclerView.Adapter<AllergenAdapter.AllergenViewHolder>() {
 
-    class AllergenViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class AllergenViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val allergenName: TextView = itemView.findViewById(R.id.txt_allergen_name)
         val seeMore: TextView = itemView.findViewById(R.id.txt_see_more)
         val allergenImage: ImageView = itemView.findViewById(R.id.img_allergen)
+
+        fun bind(allergen: Allergen) {
+            allergenName.text = allergen.name
+            seeMore.text = "See more"
+            allergenImage.setImageResource(R.drawable.milk) // default image
+
+            // listener priekš visa item
+            itemView.setOnClickListener {
+                onItemClick(allergen)
+            }
+
+            // listener priekš seeMore tikai
+            // seeMore.setOnClickListener { onItemClick(allergen) }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AllergenViewHolder {
@@ -25,10 +41,7 @@ class AllergenAdapter(private val items: List<Allergen>) :
     }
 
     override fun onBindViewHolder(holder: AllergenViewHolder, position: Int) {
-        val allergen = items[position]
-        holder.allergenName.text = allergen.name
-        holder.seeMore.text = "See more"
-        holder.allergenImage.setImageResource(R.drawable.milk)
+        holder.bind(items[position])
     }
 
     override fun getItemCount(): Int = items.size
