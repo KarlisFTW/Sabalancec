@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:elevation="1dp">
+
+    <!-- Orders -->
+    <include layout="@layout/account_row_item"
+        android:id="@+id/row_orders"
+        android:tag="Orders" />
+
+    <!-- Divider -->
+    <View android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray" />
+
+    <!-- Details -->
+    <include layout="@layout/account_row_item"
+        android:id="@+id/row_details"
+        android:tag="My Details" />
+
+    <!-- Divider -->
+    <View android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray" />
+
+    <!-- Address -->
+    <include layout="@layout/account_row_item"
+        android:id="@+id/row_address"
+        android:tag="Delivery Address" />
+</LinearLayout>
