@@ -7,12 +7,12 @@
     android:layout_margin="8dp"
     android:elevation="2dp">
 
+
     <ImageView
         android:id="@+id/img_allergen"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:scaleType="centerCrop"
-
         android:clipToOutline="true" />
 
     <TextView

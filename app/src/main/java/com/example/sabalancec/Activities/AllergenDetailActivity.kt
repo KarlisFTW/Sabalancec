@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.example.sabalancec.Data.Allergen
 import com.example.sabalancec.R
 
@@ -15,6 +16,16 @@ class AllergenDetailActivity : AppCompatActivity() {
 
         val allergen = intent.getParcelableExtra<Allergen>("allergen") ?: return
 
+        // Toolbar setup
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        toolbar.title = allergen.name
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar.setNavigationOnClickListener {
+            finish()
+        }
+
+        // Content setup
         val image = findViewById<ImageView>(R.id.img_allergen)
         val name = findViewById<TextView>(R.id.txt_name)
         val description = findViewById<TextView>(R.id.txt_description)
@@ -27,10 +38,10 @@ class AllergenDetailActivity : AppCompatActivity() {
     }
 
     private fun getDescriptionFor(allergen: Allergen): String {
-        return "This is a placeholder description for ${allergen.name}. Update this from API or local DB."
+        return "This is a placeholder description for ${allergen.name}."
     }
 
     private fun getReactionFor(allergen: Allergen): String {
-        return "Possible allergic reactions to ${allergen.name}. Replace with real data later."
+        return "This is a placeholder reaction for ${allergen.name}."
     }
 }
