@@ -10,8 +10,13 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.sabalancec.Activities.ProductDetails
+import com.example.sabalancec.Cart.AppDatabase
 import com.example.sabalancec.Products.Product
 import com.example.sabalancec.R
+import com.example.sabalancec.Cart.CartViewModel
+import com.example.sabalancec.Cart.CartViewModelFactory
+import com.example.sabalancec.Cart.CartRepository
+import com.example.sabalancec.Cart.CartDao
 
 class ProductAdapter(private var productList: List<Product>) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
@@ -37,7 +42,7 @@ class ProductAdapter(private var productList: List<Product>) : RecyclerView.Adap
             Glide.with(holder.itemView.context)
                 .load("https://rsc97lvk0erlhrp-y8b9c67gtggi5fdi.adb.eu-zurich-1.oraclecloudapps.com/ords/warehouse/images/" + product.image)
                 .placeholder(R.drawable.carrot)
-                .error(com.hbb20.R.drawable.flag_botswana)
+                .error(R.drawable.carrot)
                 .into(holder.productImage)
         } else {
             // Use resource ID as fallback
@@ -49,7 +54,10 @@ class ProductAdapter(private var productList: List<Product>) : RecyclerView.Adap
         holder.productAmount.text = product.amount
         holder.productPrice.text = "$"+product.price.toString()
 
+        val cartDao = AppDatabase.getDatabase(holder.itemView.context).cartDao()
+        val cartViewModel = CartViewModelFactory(CartRepository(cartDao)).create(CartViewModel::class.java)
         holder.addToCartButton.setOnClickListener {
+            cartViewModel.addToCart(product)
             Toast.makeText(holder.itemView.context, "${product.name} added to cart!", Toast.LENGTH_SHORT).show()
         }
 
@@ -62,6 +70,7 @@ class ProductAdapter(private var productList: List<Product>) : RecyclerView.Adap
             context.startActivity(intent)
         }
     }
+
     fun updateProducts(newProducts: List<Product>) {
         this.productList = newProducts
         notifyDataSetChanged()
