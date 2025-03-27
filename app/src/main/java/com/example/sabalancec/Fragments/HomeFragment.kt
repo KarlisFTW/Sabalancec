@@ -1,5 +1,6 @@
 package com.example.sabalancec.Fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +17,10 @@ import com.example.sabalancec.R
 import com.example.sabalancec.Products.ProductRepository
 import kotlinx.coroutines.launch
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.example.sabalancec.Activities.ProductActivity
+import com.example.sabalancec.Adapter.Category
+import com.example.sabalancec.Adapter.CategoryAdapter
+
 import com.example.sabalancec.Products.ProductCache
 
 class HomeFragment : Fragment() {
@@ -24,6 +29,8 @@ class HomeFragment : Fragment() {
     private var isDataLoaded = false
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var bestsellerAdapter: ProductAdapter
+    private val categories = mutableListOf<Category>()
+    private lateinit var categoryAdapter: CategoryAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,6 +41,7 @@ class HomeFragment : Fragment() {
         productRepository = ProductRepository()
         setupRecyclerView(view)
         setupSwipeRefresh(view)
+        loadCategories()
 
         return view
     }
@@ -79,15 +87,29 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView(view: View) {
-        // Set up New Products recycler
+        // Set up Categories recycler
+        val categoriesRecyclerView = view.findViewById<RecyclerView>(R.id.recycler_Categories)
+        categoriesRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        categoryAdapter = CategoryAdapter(requireContext(), categories) { category ->
+            // Open ProductActivity when category is clicked
+            val intent = Intent(requireContext(), ProductActivity::class.java)
+            intent.putExtra("CATEGORY_ID", category.name)
+            intent.putExtra("CATEGORY_NAME", category.name)
+            startActivity(intent)
+        }
+        categoriesRecyclerView.adapter = categoryAdapter
+
+        // Existing product recyclers setup
         val recyclerView = view.findViewById<RecyclerView>(R.id.productRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         productAdapter = ProductAdapter(emptyList())
         recyclerView.adapter = productAdapter
 
-        // Set up Bestsellers recycler
         val bestsellerRecyclerView = view.findViewById<RecyclerView>(R.id.recycler_bestsellers)
-        bestsellerRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        bestsellerRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         bestsellerAdapter = ProductAdapter(emptyList())
         bestsellerRecyclerView.adapter = bestsellerAdapter
     }
@@ -98,6 +120,52 @@ class HomeFragment : Fragment() {
         if (adapter is ProductAdapter) {
             adapter.updateProducts(products)
         }
+    }
+
+    // Add this method to set up and load categories
+    private fun loadCategories() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val categoryResponse = productRepository.getCategories()
+
+                val apiCategories = categoryResponse.items.map { item ->
+                    com.example.sabalancec.Adapter.Category(
+                        name = item.category,
+                        imageResId = getCategoryImage(item.category)
+                    )
+                }
+
+                categories.clear()
+                categories.addAll(apiCategories)
+                categoryAdapter.notifyDataSetChanged()
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error loading categories: ${e.message}", e)
+                loadFallbackCategories()
+            }
+        }
+    }
+
+    private fun getCategoryImage(categoryName: String): Int {
+        return when {
+            categoryName.contains("Nuts", ignoreCase = true) -> R.drawable.pistachios
+            categoryName.contains("Vegetable", ignoreCase = true) -> R.drawable.carrot
+            categoryName.contains("Green", ignoreCase = true) -> R.drawable.spinach
+            categoryName.contains("Dairy", ignoreCase = true) -> R.drawable.dairy
+            categoryName.contains("Grain", ignoreCase = true) -> R.drawable.lentils
+            else -> R.drawable.carrot // Default image
+        }
+    }
+
+    private fun loadFallbackCategories() {
+        categories.clear()
+        categories.addAll(listOf(
+            Category("Nuts, seeds, fruit", R.drawable.pistachios),
+            Category("Vegetables", R.drawable.carrot),
+            Category("Greens", R.drawable.spinach),
+            Category("Dairy", R.drawable.dairy),
+            Category("Grains", R.drawable.lentils)
+        ))
+        categoryAdapter.notifyDataSetChanged()
     }
 
 
