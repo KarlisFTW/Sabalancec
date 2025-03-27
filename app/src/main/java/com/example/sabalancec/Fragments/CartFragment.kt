@@ -45,8 +45,13 @@ class CartFragment : Fragment() {
         observeCartData()
 
         binding.btnCheckout.setOnClickListener {
-            // Implement checkout functionality
-            Toast.makeText(requireContext(), "Proceeding to checkout...", Toast.LENGTH_SHORT).show()
+            val totalPrice = viewModel.totalPrice.value ?: 0.0
+            val checkoutSheet = CheckoutBottomSheetFragment(totalPrice) {
+                // This is the callback when "Place Order" is clicked
+                viewModel.clearCart()
+                Toast.makeText(requireContext(), "Order placed successfully!", Toast.LENGTH_SHORT).show()
+            }
+            checkoutSheet.show(parentFragmentManager, "CheckoutBottomSheet")
         }
     }
 

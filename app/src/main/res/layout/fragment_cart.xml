@@ -63,7 +63,7 @@
             android:layout_gravity="end|center_vertical"
             android:layout_marginEnd="16dp"
             android:background="@drawable/price_background"
-            android:elevation="2dp"
+            android:elevation="3dp"
             android:fontFamily="@font/poppins_semibold"
             android:paddingStart="12dp"
             android:paddingTop="4dp"
@@ -71,7 +71,11 @@
             android:paddingBottom="4dp"
             android:text="$0.00"
             android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:stateListAnimator="@null"
+            android:clickable="false"
+            android:focusable="false"
+            android:outlineProvider="none"/>
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
