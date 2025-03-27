@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="150dp"
     android:layout_height="wrap_content"
-    android:padding="10dp"
+    android:layout_marginTop="15dp"
+    android:layout_marginEnd="15dp"
+    android:background="@drawable/product_item_background"
     android:orientation="vertical"
-    android:layout_marginEnd="16dp"
-    android:background="@android:color/white">
+    android:padding="15dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,8 +19,10 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
+            android:background="@drawable/rounded_background_image"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
-            android:src="@drawable/kiwi" />
+            android:src="@drawable/dairy" />
 
         <TextView
             android:id="@+id/productName"
@@ -42,8 +46,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/productPrice"
@@ -61,12 +65,17 @@
             android:gravity="end"
             android:orientation="horizontal">
 
-            <ImageView
+            <ImageButton
                 android:id="@+id/addToCartButton"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:background="@drawable/rounded_cart_button"
                 android:contentDescription="Add to cart"
-                android:src="@drawable/ic_add_fruit_button" />
+                android:padding="8dp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_plus"
+                app:tint="@android:color/white" />
+
         </LinearLayout>
 
     </LinearLayout>

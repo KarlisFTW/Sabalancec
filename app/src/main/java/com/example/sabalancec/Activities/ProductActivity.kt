@@ -1,73 +1,73 @@
 package com.example.sabalancec.Activities
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sabalancec.Adapter.ProductAdapter
 import com.example.sabalancec.Products.Product
+import com.example.sabalancec.Products.ProductRepository
 import com.example.sabalancec.R
+import kotlinx.coroutines.launch
 
 class ProductActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var productAdapter: ProductAdapter
-    private var productList: List<Product> = emptyList()
+    private lateinit var productRepository: ProductRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_product)
 
-        // Retrieve the category name passed from the intent
+
+        // Retrieve the category data passed from the intent
+        val categoryId = intent.getStringExtra("CATEGORY_ID") ?: ""
         val categoryName = intent.getStringExtra("CATEGORY_NAME") ?: "Unknown Category"
 
-        // Set the toolbar title to the category name
+        // Set toolbar title
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         toolbar.title = categoryName
-        setSupportActionBar(toolbar)  // Ensure the toolbar is used as the action bar
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)  // Show back arrow
-
-        // Handle the back button click
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener {
-            finish()  // Handle back navigation when the icon is clicked
+            finish()
         }
+
+        // Initialize repository
+        productRepository = ProductRepository()
+
         // Initialize RecyclerView
         recyclerView = findViewById(R.id.recyclerViewProducts)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)  // Grid layout with 2 columns
+        recyclerView.layoutManager = GridLayoutManager(this, 2)
 
-        // Get the products for the selected category
-        //productList = getProductsByCategory(categoryName)
-
-        // Set up the adapter for the RecyclerView
-        productAdapter = ProductAdapter(productList)
+        // Initialize adapter with empty list
+        productAdapter = ProductAdapter(emptyList())
         recyclerView.adapter = productAdapter
+
+        // Load products for the category
+        loadProductsByCategory(categoryId)
     }
 
-//    private fun getProductsByCategory(categoryName: String?): List<Product> {
-//        // Replace this with actual logic to fetch products based on the category
-//        return when (categoryName) {
-//            "Nuts, seeds, fruit" -> listOf(
-//                Product(R.drawable.almonds, "Almonds", "100g", "$5.99"),
-//                Product(R.drawable.cashews, "Cashews", "100g", "$6.49")
-//            )
-//            "Vegetables" -> listOf(
-//                Product(R.drawable.carrot, "Carrot", "500g", "$2.99"),
-//                Product(R.drawable.spinach, "Spinach", "300g", "$3.49")
-//            )
-//            "Greens" -> listOf(
-//                Product(R.drawable.spinach, "Spinach", "300g", "$3.49"),
-//                Product(R.drawable.kale, "Kale", "200g", "$4.99")
-//            )
-//            "Dairy" -> listOf(
-//                Product(R.drawable.milk, "Milk", "1L", "$1.49"),
-//                Product(R.drawable.cheese, "Cheese", "200g", "$2.99")
-//            )
-//            "Grains" -> listOf(
-//                Product(R.drawable.lentils, "Lentils", "500g", "$3.99"),
-//                Product(R.drawable.rice, "Rice", "1kg", "$2.49")
-//            )
-//            else -> emptyList()
-//        }
-//    }
+    private fun loadProductsByCategory(categoryId: String) {
+        lifecycleScope.launch {
+            try {
+                val allProducts = productRepository.getProducts()
+                val filteredProducts = allProducts.filter { product ->
+                    Log.d("ProductActivity", "Product: $product")
+                    product.categoryId == categoryId
+                }
+                productAdapter.updateProducts(filteredProducts)
+            } catch (e: Exception) {
+                Toast.makeText(this@ProductActivity,
+                    "Error loading products: ${e.message}",
+                    Toast.LENGTH_SHORT).show()
+                Log.e("ProductActivity", "Error loading products", e)
+            }
+        }
+    }
 }

@@ -19,7 +19,9 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/bell_pepper" />
+            app:srcCompat="@drawable/bell_pepper"
+            android:background="@drawable/rounded_background_image"
+            android:clipToOutline="true"/>
 
         <Space
             android:layout_width="10dp"

@@ -5,7 +5,7 @@
     android:layout_height="150dp"
     android:layout_marginTop="15dp"
     android:layout_marginEnd="15dp"
-    android:background="@drawable/rounded_background"
+    android:background="@drawable/category_item_background"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="10dp">
@@ -22,7 +22,9 @@
             android:layout_height="75dp"
             android:layout_gravity="center"
             android:scaleType="centerCrop"
-            android:src="@drawable/dairy" />
+            android:src="@drawable/dairy"
+            android:background="@drawable/rounded_background_image"
+            android:clipToOutline="true"/>
 
         <Space
             android:layout_width="match_parent"

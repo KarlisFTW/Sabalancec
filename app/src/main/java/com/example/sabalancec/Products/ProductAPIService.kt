@@ -62,6 +62,10 @@ class ProductRepository {
 //        return allProducts.filter { it.categoryId == categoryId }
 //    }
 
+    suspend fun getCategories(): CategoryResponse {
+        return apiService.getCategories()
+    }
+
     suspend fun getProductById(productId: Int, forceRefresh: Boolean = false): Product? {
         // Check cache first
         if (!forceRefresh) {

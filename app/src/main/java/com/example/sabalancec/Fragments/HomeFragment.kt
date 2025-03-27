@@ -23,6 +23,7 @@ class HomeFragment : Fragment() {
     private lateinit var productRepository: ProductRepository
     private var isDataLoaded = false
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var bestsellerAdapter: ProductAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,10 +56,11 @@ class HomeFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val products = productRepository.getProducts(forceRefresh)
-                (view?.findViewById<RecyclerView>(R.id.productRecyclerView)?.adapter as? ProductAdapter)?.
-                let { adapter ->
-                    updateAdapterData(adapter, products)
-                }
+
+                // Update both adapters with the same data
+                productAdapter.updateProducts(products)
+                bestsellerAdapter.updateProducts(products)
+
                 isDataLoaded = true
             } catch (e: Exception) {
                 Toast.makeText(context, "Error loading products: ${e.message}", Toast.LENGTH_LONG).show()
@@ -77,10 +79,17 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView(view: View) {
+        // Set up New Products recycler
         val recyclerView = view.findViewById<RecyclerView>(R.id.productRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        productAdapter = ProductAdapter(emptyList()) // Start with empty list
+        productAdapter = ProductAdapter(emptyList())
         recyclerView.adapter = productAdapter
+
+        // Set up Bestsellers recycler
+        val bestsellerRecyclerView = view.findViewById<RecyclerView>(R.id.recycler_bestsellers)
+        bestsellerRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        bestsellerAdapter = ProductAdapter(emptyList())
+        bestsellerRecyclerView.adapter = bestsellerAdapter
     }
 
 

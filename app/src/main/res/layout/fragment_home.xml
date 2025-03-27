@@ -69,7 +69,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:divider="@drawable/empty_tall_divider_30dp"
+                    android:orientation="vertical"
+                    android:showDividers="middle">
 
                     <LinearLayout
                         android:layout_width="match_parent"
