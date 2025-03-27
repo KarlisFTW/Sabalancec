@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.sabalancec.Activities.ProductActivity
 import com.example.sabalancec.Adapter.Category
-import com.example.sabalancec.Adapter.CategoryAdapter
+import com.example.sabalancec.Adapter.HomeCategoryAdapter
 
 import com.example.sabalancec.Products.ProductCache
 
@@ -30,7 +30,7 @@ class HomeFragment : Fragment() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var bestsellerAdapter: ProductAdapter
     private val categories = mutableListOf<Category>()
-    private lateinit var categoryAdapter: CategoryAdapter
+    private lateinit var homeCategoryAdapter: HomeCategoryAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -91,14 +91,15 @@ class HomeFragment : Fragment() {
         val categoriesRecyclerView = view.findViewById<RecyclerView>(R.id.recycler_Categories)
         categoriesRecyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        categoryAdapter = CategoryAdapter(requireContext(), categories) { category ->
+
+        homeCategoryAdapter = HomeCategoryAdapter(requireContext(), categories) { category ->
             // Open ProductActivity when category is clicked
             val intent = Intent(requireContext(), ProductActivity::class.java)
             intent.putExtra("CATEGORY_ID", category.name)
             intent.putExtra("CATEGORY_NAME", category.name)
             startActivity(intent)
         }
-        categoriesRecyclerView.adapter = categoryAdapter
+        categoriesRecyclerView.adapter = homeCategoryAdapter
 
         // Existing product recyclers setup
         val recyclerView = view.findViewById<RecyclerView>(R.id.productRecyclerView)
@@ -129,7 +130,7 @@ class HomeFragment : Fragment() {
                 val categoryResponse = productRepository.getCategories()
 
                 val apiCategories = categoryResponse.items.map { item ->
-                    com.example.sabalancec.Adapter.Category(
+                    Category(
                         name = item.category,
                         imageResId = getCategoryImage(item.category)
                     )
@@ -137,7 +138,7 @@ class HomeFragment : Fragment() {
 
                 categories.clear()
                 categories.addAll(apiCategories)
-                categoryAdapter.notifyDataSetChanged()
+                homeCategoryAdapter.notifyDataSetChanged()
             } catch (e: Exception) {
                 Log.e("HomeFragment", "Error loading categories: ${e.message}", e)
                 loadFallbackCategories()
@@ -165,7 +166,7 @@ class HomeFragment : Fragment() {
             Category("Dairy", R.drawable.dairy),
             Category("Grains", R.drawable.lentils)
         ))
-        categoryAdapter.notifyDataSetChanged()
+        homeCategoryAdapter.notifyDataSetChanged()
     }
 
 
