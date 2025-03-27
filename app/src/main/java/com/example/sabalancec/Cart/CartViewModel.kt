@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.asLiveData
 import com.example.sabalancec.Products.Product
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -18,8 +19,17 @@ class CartViewModel(private val cartRepository: CartRepository) : ViewModel() {
         cartRepository.addToCart(product)
     }
 
-    fun increaseQuantity(productId: Int) = viewModelScope.launch {
-        cartRepository.increaseQuantity(productId)
+    fun increaseQuantity(productId: Int, quantity: Int = 1) = viewModelScope.launch {
+        cartRepository.increaseQuantity(productId, quantity)
+    }
+
+    fun addOrIncreaseProduct(product: Product, quantity: Int = 1) = viewModelScope.launch {
+        val isInCart = cartRepository.isInCart(product.id).first() // Using Flow.first() for one-shot collection
+        if (isInCart) {
+            cartRepository.increaseQuantity(product.id, quantity)
+        } else {
+            cartRepository.addToCart(product, quantity)
+        }
     }
 
     fun decreaseQuantity(productId: Int) = viewModelScope.launch {

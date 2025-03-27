@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.sabalancec.Activities.ProductDetails
@@ -16,7 +17,6 @@ import com.example.sabalancec.R
 import com.example.sabalancec.Cart.CartViewModel
 import com.example.sabalancec.Cart.CartViewModelFactory
 import com.example.sabalancec.Cart.CartRepository
-import com.example.sabalancec.Cart.CartDao
 
 class ProductAdapter(private var productList: List<Product>) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
@@ -52,13 +52,18 @@ class ProductAdapter(private var productList: List<Product>) : RecyclerView.Adap
         holder.productImage.setImageResource(product.imageRes)
         holder.productName.text = product.name
         holder.productAmount.text = product.amount
-        holder.productPrice.text = "$"+product.price.toString()
+        holder.productPrice.text = "$${String.format("%.2f", product.price)}"
 
         val cartDao = AppDatabase.getDatabase(holder.itemView.context).cartDao()
         val cartViewModel = CartViewModelFactory(CartRepository(cartDao)).create(CartViewModel::class.java)
         holder.addToCartButton.setOnClickListener {
-            cartViewModel.addToCart(product)
-            Toast.makeText(holder.itemView.context, "${product.name} added to cart!", Toast.LENGTH_SHORT).show()
+            cartViewModel.addOrIncreaseProduct(product, 1)
+            val message = if (cartViewModel.isProductInCart(product.id).value == true) {
+                "${product.name} quantity increased!"
+            } else {
+                "${product.name} added to cart!"
+            }
+            Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
         }
 
         // Set click listener for the entire product item

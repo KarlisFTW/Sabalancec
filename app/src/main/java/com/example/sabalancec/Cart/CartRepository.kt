@@ -9,7 +9,7 @@ class CartRepository(private val cartDao: CartDao) {
 
     fun isInCart(productId: Int) = cartDao.isInCart(productId)
 
-    suspend fun addToCart(product: Product) {
+    suspend fun addToCart(product: Product, quantity: Int = 1) {
         val cartItem = CartItem(
             productId = product.id,
             name = product.name,
@@ -17,13 +17,13 @@ class CartRepository(private val cartDao: CartDao) {
             image = product.image,
             imageRes = product.imageRes,
             amount = product.amount,
-            quantity = 1
+            quantity = quantity
         )
         cartDao.insertItem(cartItem)
     }
 
-    suspend fun increaseQuantity(productId: Int) {
-        cartDao.incrementQuantity(productId)
+    suspend fun increaseQuantity(productId: Int, quantity: Int) {
+        cartDao.incrementQuantity(productId, quantity)
     }
 
     suspend fun decreaseQuantity(productId: Int) {

@@ -13,8 +13,8 @@ data class Product(
     val amount: String = "1kg", // We'll keep this for backwards compatibility
     val imageRes: Int = 0, // Keep for backwards compatibility with existing code
     val image: String = "", // Image URL from API
-    val categoryId: Int,
-    val categoryName: String = "Unknown Category",
+    val categoryId: String,
+    val categoryName: String = "",
     val amountSold: Int = 0,
     val availableQuantity: Int = 0,
     val hasAllergens: Boolean = false,
@@ -30,28 +30,27 @@ data class Product(
         id: Int,
         name: String,
         price: Double,
-        categoryId: Int,
-        categoryName: String,
+        categoryId: String,
         image: String,
         amountSold: Int,
         availableQuantity: Int,
         hasAllergens: String,
         allergenId: Int?,
         rating: Float?,
-        providerId: Int?
+        usersId: Int?
     ) : this(
         id = id,
         name = name,
         price = price,
         categoryId = categoryId,
-        categoryName = categoryName,
+        categoryName = categoryId, // Use categoryId as categoryName
         image = image,
         amountSold = amountSold,
         availableQuantity = availableQuantity,
-        hasAllergens = hasAllergens == "1",
+        hasAllergens = hasAllergens == "N" || hasAllergens == "Y",
         allergenId = allergenId,
         rating = rating,
-        providerId = providerId,
+        providerId = usersId,
         reviews = generateDummyReviews(),
         description = generateProductDescription(name),
         nutritionValues = generateNutritionValues(name)

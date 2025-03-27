@@ -11,7 +11,7 @@ data class ProductItem(
     val name: String,
     val price: Double,
     @SerializedName("category_id")
-    val categoryId: Int,
+    val categoryId: String,
     val image: String,
     @SerializedName("amount_sold")
     val amountSold: Int,
@@ -21,9 +21,9 @@ data class ProductItem(
     val hasAllergens: String,
     @SerializedName("allergen_id")
     val allergenId: Int?,
-    val rating: Float?,
-    @SerializedName("provider_id")
-    val providerId: Int?
+    val rating: Float? = null,
+    @SerializedName("users_id")
+    val usersId: Int?
 )
 
 data class CategoryResponse(
@@ -31,6 +31,8 @@ data class CategoryResponse(
 )
 
 data class CategoryItem(
+    @SerializedName("categories")
     val id: Int,
+    @SerializedName("id")
     val category: String
 )

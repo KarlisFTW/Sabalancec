@@ -1,6 +1,7 @@
 package com.example.sabalancec.Fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,6 +62,7 @@ class HomeFragment : Fragment() {
                 isDataLoaded = true
             } catch (e: Exception) {
                 Toast.makeText(context, "Error loading products: ${e.message}", Toast.LENGTH_LONG).show()
+                Log.e("HomeFragment", "Error loading products", e)
             } finally {
                 swipeRefreshLayout.isRefreshing = false
             }

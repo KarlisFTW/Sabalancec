@@ -14,8 +14,8 @@ interface CartDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItem(cartItem: CartItem)
 
-    @Query("UPDATE cart_items SET quantity = quantity + 1 WHERE productId = :productId")
-    suspend fun incrementQuantity(productId: Int)
+    @Query("UPDATE cart_items SET quantity = quantity + :quantity WHERE productId = :productId")
+    suspend fun incrementQuantity(productId: Int, quantity: Int)
 
     @Query("UPDATE cart_items SET quantity = quantity - 1 WHERE productId = :productId AND quantity > 1")
     suspend fun decrementQuantity(productId: Int)

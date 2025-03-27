@@ -2,6 +2,10 @@ package com.example.sabalancec.Activities
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -9,17 +13,21 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sabalancec.Adapter.ExpandableItemAdapter
+import com.example.sabalancec.Cart.AppDatabase
+import com.example.sabalancec.Cart.CartRepository
+import com.example.sabalancec.Cart.CartViewModel
+import com.example.sabalancec.Cart.CartViewModelFactory
 import com.example.sabalancec.Products.Product
 import com.example.sabalancec.R
 import com.example.sabalancec.models.ExpandableItem
-import android.widget.ImageView
-import android.widget.TextView
 import com.example.sabalancec.models.Review
+import com.google.android.material.button.MaterialButton
 
 class ProductDetails : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: ExpandableItemAdapter
     private lateinit var product: Product
+    private var quantity = 1 // Default quantity
 
     // References to product data from intent
     private var productImage: Int = 0
@@ -45,8 +53,59 @@ class ProductDetails : AppCompatActivity() {
         // Display basic product info
         setupProductHeader()
 
+        // Setup quantity counter
+        setupQuantityCounter()
+
+        // Setup add to cart button
+        setupAddToCartButton()
+
         // Setup RecyclerView with expandable items
         setupRecyclerView()
+    }
+
+    private fun setupQuantityCounter() {
+        val counterView = findViewById<TextView>(R.id.tv_counter)
+        val increaseButton = findViewById<ImageButton>(R.id.btn_increase)
+        val decreaseButton = findViewById<ImageButton>(R.id.btn_decrease)
+        val totalPriceView = findViewById<TextView>(R.id.tv_total_price)
+
+        counterView.text = quantity.toString()
+        updateTotalPrice()
+
+        increaseButton.setOnClickListener {
+            quantity++
+            counterView.text = quantity.toString()
+            updateTotalPrice()
+        }
+
+        decreaseButton.setOnClickListener {
+            if (quantity > 1) {
+                quantity--
+                counterView.text = quantity.toString()
+                updateTotalPrice()
+            }
+        }
+    }
+
+    private fun updateTotalPrice() {
+        val totalPriceView = findViewById<TextView>(R.id.tv_total_price)
+        val unitPrice = product.price
+        val total = unitPrice * quantity
+        totalPriceView.text = "$${String.format("%.2f", total)}"
+    }
+
+    private fun setupAddToCartButton() {
+        val addToCartButton = findViewById<MaterialButton>(R.id.btn_addtocart)
+
+        addToCartButton.setOnClickListener {
+            val cartDao = AppDatabase.getDatabase(this).cartDao()
+            val cartRepository = CartRepository(cartDao)
+            val cartViewModel = CartViewModelFactory(cartRepository).create(CartViewModel::class.java)
+
+            cartViewModel.addOrIncreaseProduct(product, quantity)
+
+            Toast.makeText(this, "$quantity ${product.name} added to cart!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun extractProductData() {
@@ -58,20 +117,19 @@ class ProductDetails : AppCompatActivity() {
             productName = product.name
             productAmount = product.amount
             productPrice = "$"+product.price
-            //if description is empty, set it to a default value
             productDescription = product.description.ifEmpty { "No description available for $productName" }
         }
     }
 
     private fun setupProductHeader() {
-        // Set product image, name, amount and price at the top of the details screen
         findViewById<ImageView>(R.id.iv_product_image)?.setImageResource(productImage)
         findViewById<TextView>(R.id.tv_productname)?.text = productName
-        //findViewById<TextView>(R.id.product_amount)?.text = productAmount
+        findViewById<TextView>(R.id.tv_priceper)?.text = productAmount
         findViewById<TextView>(R.id.tv_total_price)?.text = productPrice
     }
 
     private fun setupRecyclerView() {
+        // Existing implementation...
         recyclerView = findViewById(R.id.recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -105,8 +163,6 @@ class ProductDetails : AppCompatActivity() {
     }
 
     private fun getReviewsData(): List<Review> {
-        Log.d("ProductDetails", "Product category: ${product.categoryName}")
-        Log.d("ProductDetails", "Product Reviews: ${product.reviews}")
         return product.reviews
     }
 }

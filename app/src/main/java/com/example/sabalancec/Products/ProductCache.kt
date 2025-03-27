@@ -5,7 +5,7 @@ import com.example.sabalancec.models.Review
 object ProductCache {
     // In-memory cache
     private val productCache = mutableMapOf<Int, Product>()
-    private val productsByCategory = mutableMapOf<Int, List<Product>>()
+    private val productsByCategory = mutableMapOf<String, List<Product>>()
     private var allProducts: List<Product>? = null
 
     // Cache timeout (5 minutes)
@@ -35,7 +35,7 @@ object ProductCache {
 
     fun getProduct(id: Int): Product? = productCache[id]
 
-    fun getProductsByCategory(categoryId: Int): List<Product> =
+    fun getProductsByCategory(categoryId: String): List<Product> =
         productsByCategory[categoryId] ?: emptyList()
 
     fun clearCache() {

@@ -42,14 +42,13 @@ class ProductRepository {
                 name = item.name,
                 price = item.price,
                 categoryId = item.categoryId,
-                categoryName = categoryMap[item.categoryId] ?: "Unknown Category",
                 image = item.image,
                 amountSold = item.amountSold,
                 availableQuantity = item.availableQuantity,
                 hasAllergens = item.hasAllergens,
                 allergenId = item.allergenId,
                 rating = item.rating,
-                providerId = item.providerId
+                usersId = item.usersId
             )
         }
 
@@ -58,10 +57,10 @@ class ProductRepository {
         return products
     }
 
-    suspend fun getProductsByCategory(categoryId: Int, forceRefresh: Boolean = false): List<Product> {
-        val allProducts = getProducts(forceRefresh)
-        return allProducts.filter { it.categoryId == categoryId }
-    }
+//    suspend fun getProductsByCategory(categoryId: Int, forceRefresh: Boolean = false): List<Product> {
+//        val allProducts = getProducts(forceRefresh)
+//        return allProducts.filter { it.categoryId == categoryId }
+//    }
 
     suspend fun getProductById(productId: Int, forceRefresh: Boolean = false): Product? {
         // Check cache first
@@ -76,8 +75,8 @@ class ProductRepository {
         return ProductCache.getProduct(productId)
     }
 
-    private suspend fun getCategoryMap(): Map<Int, String> {
+    private suspend fun getCategoryMap(): Map<String, Int> {
         val categoryResponse = apiService.getCategories()
-        return categoryResponse.items.associate { it.id to it.category }
+        return categoryResponse.items.associate { it.category to it.id }
     }
 }
