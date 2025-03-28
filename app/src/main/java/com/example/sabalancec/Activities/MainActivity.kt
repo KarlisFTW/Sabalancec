@@ -26,39 +26,33 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_auth)  // Set default layout
 
-        val authenticationFragment = R.id.frag_authScreens
-        val authManager = AuthManager.getInstance(this)
-
-        // First quick check with local data only
-        if (authManager.getAccessToken() != null) {
-            // Token exists, launch coroutine to properly validate it
-            lifecycleScope.launch {
-                val isTokenValid = try {
-                    authManager.validateToken()
-                } catch (e: Exception) {
-                    false
-                }
-
-                if (isTokenValid) {
-                    // Valid token, navigate to main screen
-                    val intent = Intent(this@MainActivity, WhenLoggedIn::class.java)
-                    startActivity(intent)
-                    finish()  // Close MainActivity
-                } else {
-                    // Invalid token, show auth fragment
-                    loadFragment(AuthOptionsFragment(), authenticationFragment)
-                }
-            }
-        } else {
-            // No token, load auth fragment immediately
-            loadFragment(AuthOptionsFragment(), authenticationFragment)
-        }
-
-
-
-
-
-
+//        val authenticationFragment = R.id.frag_authScreens
+//        val authManager = AuthManager.getInstance(this)
+//
+//        // First quick check with local data only
+//        if (authManager.getAccessToken() != null) {
+//            // Token exists, launch coroutine to properly validate it
+//            lifecycleScope.launch {
+//                val isTokenValid = try {
+//                    authManager.validateToken()
+//                } catch (e: Exception) {
+//                    false
+//                }
+//
+//                if (isTokenValid) {
+//                    // Valid token, navigate to main screen
+//                    val intent = Intent(this@MainActivity, WhenLoggedIn::class.java)
+//                    startActivity(intent)
+//                    finish()  // Close MainActivity
+//                } else {
+//                    // Invalid token, show auth fragment
+//                    loadFragment(AuthOptionsFragment(), authenticationFragment)
+//                }
+//            }
+//        } else {
+//            // No token, load auth fragment immediately
+//            loadFragment(AuthOptionsFragment(), authenticationFragment)
+//        }
 
 //        val btLoginTemp: Button = findViewById(R.id.btn_signin) // Correct button initialization
 //
