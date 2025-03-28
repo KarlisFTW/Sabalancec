@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.sabalancec.Auth.AuthManager
 import com.example.sabalancec.R
@@ -31,6 +32,9 @@ class DeliveryAddressBottomSheetFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Apply rounded corners to the bottom sheet
+        view.background = ContextCompat.getDrawable(requireContext(), R.drawable.bottom_sheet_rounded_corners)
 
         authManager = AuthManager.getInstance(requireContext())
 

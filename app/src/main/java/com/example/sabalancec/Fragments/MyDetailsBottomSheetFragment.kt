@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.sabalancec.Auth.AuthManager
 import com.example.sabalancec.R
@@ -17,75 +18,65 @@ import kotlinx.coroutines.launch
 
 class MyDetailsBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var authManager: AuthManager
-    private lateinit var addressLineEditText: TextInputEditText
-    private lateinit var cityEditText: TextInputEditText
-    private lateinit var stateEditText: TextInputEditText
-    private lateinit var countryEditText: TextInputEditText
+    private lateinit var nameEditText: TextInputEditText
+    private lateinit var emailEditText: TextInputEditText
+    private lateinit var dateOfBirthEditText: TextInputEditText
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.popup_deliveryaddress, container, false)
+        return inflater.inflate(R.layout.popup_mydetails, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Apply rounded corners to the bottom sheet
+        view.background = ContextCompat.getDrawable(requireContext(), R.drawable.bottom_sheet_rounded_corners)
+
         authManager = AuthManager.getInstance(requireContext())
 
         // Initialize views
-        addressLineEditText = view.findViewById<TextInputLayout>(R.id.txtfield_addressline).editText as TextInputEditText
-        cityEditText = view.findViewById<TextInputLayout>(R.id.txtfield_city).editText as TextInputEditText
-        stateEditText = view.findViewById<TextInputLayout>(R.id.txtfield_state).editText as TextInputEditText
-        countryEditText = view.findViewById<TextInputLayout>(R.id.txtfield_country).editText as TextInputEditText
+        nameEditText = view.findViewById<TextInputLayout>(R.id.txtfield_name).editText as TextInputEditText
+        emailEditText = view.findViewById<TextInputLayout>(R.id.txtfield_email).editText as TextInputEditText
+        dateOfBirthEditText = view.findViewById<TextInputLayout>(R.id.txtfield_dateofbirth).editText as TextInputEditText
         val closeButton = view.findViewById<ImageButton>(R.id.imageButton)
         val saveButton = view.findViewById<MaterialButton>(R.id.btn_save)
 
-        // Populate address field if available
-        val currentAddress = authManager.getUserAddress()
-        if (!currentAddress.isNullOrEmpty()) {
-            // Basic parsing of address - adapt as needed for your format
-            val parts = currentAddress.split(", ")
-            if (parts.isNotEmpty()) addressLineEditText.setText(parts.getOrNull(0))
-            if (parts.size > 1) cityEditText.setText(parts.getOrNull(1))
-            if (parts.size > 2) stateEditText.setText(parts.getOrNull(2))
-            if (parts.size > 3) countryEditText.setText(parts.getOrNull(3))
-        }
+        // Populate fields with current user data
+        nameEditText.setText(authManager.getUserFullName())
+        emailEditText.setText(authManager.getUserEmail())
 
         // Set up close button
         closeButton.setOnClickListener { dismiss() }
 
         // Set up save button
         saveButton.setOnClickListener {
-            val addressLine = addressLineEditText.text.toString().trim()
-            val city = cityEditText.text.toString().trim()
-            val state = stateEditText.text.toString().trim()
-            val country = countryEditText.text.toString().trim()
+            val name = nameEditText.text.toString().trim()
+            val email = emailEditText.text.toString().trim()
 
-            if (addressLine.isEmpty() || city.isEmpty()) {
-                Toast.makeText(context, "Please fill address and city", Toast.LENGTH_SHORT).show()
+            if (name.isEmpty() || email.isEmpty()) {
+                Toast.makeText(context, "Please fill all required fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Format complete address
-            val fullAddress = "$addressLine, $city, $state, $country".trimEnd(',', ' ')
-
             // Launch coroutine for API call
             lifecycleScope.launch {
-                val name = authManager.getUserFullName() ?: ""
-                val email = authManager.getUserEmail() ?: ""
-                val result = authManager.updateUserProfile(name, email, fullAddress)
+                val address = authManager.getUserAddress() ?: ""
+                val result = authManager.updateUserProfile(name, email, address)
 
                 if (result) {
-                    Toast.makeText(context, "Address updated successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Details updated successfully", Toast.LENGTH_SHORT).show()
+                    (parentFragment as? AccountFragment)?.displayUserInfo()
                     dismiss()
                 } else {
-                    Toast.makeText(context, "Failed to update address", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Failed to update details", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
+
     override fun getTheme(): Int {
         return R.style.BottomSheetDialogTheme
     }
