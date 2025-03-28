@@ -1,117 +1,97 @@
 package com.example.sabalancec.Fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.sabalancec.R
 import com.example.sabalancec.Auth.AuthManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.example.sabalancec.R
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.sabalancec.Activities.WelcomeActivity
 
 class AccountFragment : Fragment() {
 
     private lateinit var authManager: AuthManager
     private lateinit var usernameTextView: TextView
     private lateinit var emailTextView: TextView
-    private lateinit var addressTextView: TextView
-
-    private lateinit var btnProfileInfo: Button
-    private lateinit var btnOrderHistory: Button
-    private lateinit var btnSettings: Button
-    private lateinit var btnLogout: Button
+    private lateinit var profileImageView: ImageView
+    private lateinit var logoutButton: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_account, container, false)
+    ): View {
+        return inflater.inflate(R.layout.fragment_account, container, false)
+    }
 
-        // Init views
-        usernameTextView = view.findViewById(R.id.txt_username)
-        emailTextView = view.findViewById(R.id.txt_useremail)
-        addressTextView = view.findViewById(R.id.txt_useraddress)
-
-        val btnProfileInfo = view.findViewById<TextView>(R.id.btn_profile_info)
-        val btnOrderHistory = view.findViewById<TextView>(R.id.btn_order_history)
-        val btnSettings = view.findViewById<TextView>(R.id.btn_settings)
-        val btnLogout = view.findViewById<TextView>(R.id.btn_logout)
-
-        // Auth manager
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         authManager = AuthManager.getInstance(requireContext())
 
-        // Display user info from SharedPreferences
-        displayBasicUserInfo()
+        usernameTextView = view.findViewById(R.id.txt_username)
+        emailTextView = view.findViewById(R.id.txt_useremail)
+        profileImageView = view.findViewById(R.id.img_profile)
+        logoutButton = view.findViewById(R.id.btn_logout)
 
-        // Set click listeners
-        btnProfileInfo.setOnClickListener {
-            Toast.makeText(requireContext(), "Profile Info clicked", Toast.LENGTH_SHORT).show()
-            // TODO: Navigate to Profile Info screen
+        val rowOrders = view.findViewById<View>(R.id.row_orders)
+        val rowDetails = view.findViewById<View>(R.id.row_details)
+        val rowAddress = view.findViewById<View>(R.id.row_address)
+
+        rowOrders.findViewById<TextView>(R.id.row_title).text = "Orders"
+        rowOrders.findViewById<ImageView>(R.id.row_icon).setImageResource(R.drawable.ic_orders)
+
+        rowDetails.findViewById<TextView>(R.id.row_title).text = "My Details"
+        rowDetails.findViewById<ImageView>(R.id.row_icon).setImageResource(R.drawable.ic_user)
+
+        rowAddress.findViewById<TextView>(R.id.row_title).text = "Delivery Address"
+        rowAddress.findViewById<ImageView>(R.id.row_icon).setImageResource(R.drawable.ic_location)
+
+        displayUserInfo()
+
+        rowOrders.setOnClickListener {
+            OrdersBottomSheetFragment().show(childFragmentManager, "OrdersBottomSheet")
         }
 
-        btnOrderHistory.setOnClickListener {
-            Toast.makeText(requireContext(), "Order History clicked", Toast.LENGTH_SHORT).show()
-            // TODO: Navigate to Order History screen
+        rowDetails.setOnClickListener {
+            MyDetailsBottomSheetFragment().show(childFragmentManager, "MyDetailsBottomSheet")
         }
 
-        btnSettings.setOnClickListener {
-            Toast.makeText(requireContext(), "Settings clicked", Toast.LENGTH_SHORT).show()
-            // TODO: Navigate to Payment & Account Settings screen
+        rowAddress.setOnClickListener {
+            DeliveryAddressBottomSheetFragment().show(childFragmentManager, "DeliveryAddressBottomSheet")
         }
 
-        //btnLogout.setOnClickListener {
-           // authManager.logout()
-           // Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
-            // TODO: Navigate to Login screen
-      //  }
+        logoutButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Logging out...", Toast.LENGTH_SHORT).show()
 
-        // TODO: Add swipe-to-refresh if needed
+            // Launch coroutine to handle logout (since logout is a suspend function)
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (authManager.logout()) {
+                    Toast.makeText(requireContext(), "Logout successful", Toast.LENGTH_SHORT).show()
 
-        return view
-    }
-
-    override fun onResume() {
-        super.onResume()
-        displayBasicUserInfo()
-    }
-
-    private fun displayBasicUserInfo() {
-        val name = authManager.getUserFullName() ?: "Not available"
-        val email = authManager.getUserEmail() ?: "Not available"
-        val address = authManager.getUserAddress() ?: "Not available"
-
-        usernameTextView.text = name
-        emailTextView.text = email
-        addressTextView.text = address
-    }
-
-    // Optional: keep this if you want to use it later
-    private fun fetchUserProfile() {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val userProfile = authManager.getUserProfileSafe()
-
-                withContext(Dispatchers.Main) {
-                    if (userProfile != null) {
-                        usernameTextView.text = userProfile.fullName
-                        emailTextView.text = userProfile.email
-                        addressTextView.text = userProfile.address
-                    } else {
-                        addressTextView.text = "Address not available"
-                        Toast.makeText(requireContext(), "Could not retrieve full profile", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Navigate back to welcome screen
+                    val welcomeIntent = Intent(requireContext(), WelcomeActivity::class.java)
+                    welcomeIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(welcomeIntent)
+                    requireActivity().finish()
+                } else {
+                    Toast.makeText(requireContext(), "Logout failed", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+    }
+
+    fun displayUserInfo() {
+        val name = authManager.getUserFullName() ?: "User Name"
+        val email = authManager.getUserEmail() ?: "email@example.com"
+
+        usernameTextView.text = name
+        emailTextView.text = email
+        // profileImageView.setImageResource(...) // optional: set a drawable if needed
     }
 }
