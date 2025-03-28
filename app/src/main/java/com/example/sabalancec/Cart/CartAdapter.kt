@@ -65,7 +65,7 @@ class CartAdapter(
 
                 btnIncrease.setOnClickListener { onIncrease(item) }
                 btnDecrease.setOnClickListener { onDecrease(item) }
-                btnDecrease2.setOnClickListener { onRemove(item) }
+                btnDelete.setOnClickListener { onRemove(item) }
             }
         }
     }

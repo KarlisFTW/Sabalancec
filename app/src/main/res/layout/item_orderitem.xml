@@ -10,13 +10,13 @@
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
         android:orientation="horizontal"
-        android:paddingTop="30dp"
-        android:paddingBottom="30dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="1dp">
 
         <ImageView
-            android:id="@+id/iv_cartitem_image"
+            android:id="@+id/iv_orderitem_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:background="@drawable/rounded_background_image"
@@ -44,7 +44,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tv_cartitem_name"
+                        android:id="@+id/tv_orderitem_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_semibold"
@@ -85,70 +85,16 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingTop="10dp">
-
-                    <ImageButton
-                        android:id="@+id/btn_decrease"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Increase quantity"
-                        android:src="@drawable/ic_minus" />
-
-                    <Space
-                        android:layout_width="24dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <TextView
-                        android:id="@+id/tv_counter"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="@drawable/counter_background"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:gravity="center"
-                        android:text="1"
-                        android:textColor="@color/black"
-                        android:textSize="16sp" />
-
-                    <Space
-                        android:layout_width="24dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <ImageButton
-                        android:id="@+id/btn_increase"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Decrease quantity"
-                        android:src="@drawable/ic_plus"
-                        android:tint="@color/olive_green" />
-
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/tv_orderitem_price"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="bottom|center|end"
-                    android:orientation="horizontal">
+                    android:fontFamily="@font/poppins_semibold"
+                    android:gravity="center|end"
+                    android:text="$5.99"
+                    android:textColor="@color/black"
+                    android:textSize="20sp" />
 
-                    <TextView
-                        android:id="@+id/tv_cartitem_price"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_semibold"
-                        android:gravity="center"
-                        android:text="$5.99"
-                        android:textColor="@color/black"
-                        android:textSize="20sp" />
-                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

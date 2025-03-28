@@ -1,6 +1,9 @@
 package com.example.sabalancec.Fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +25,10 @@ class MyDetailsBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var emailEditText: TextInputEditText
     private lateinit var dateOfBirthEditText: TextInputEditText
 
+    private lateinit var nameLayout: TextInputLayout
+    private lateinit var emailLayout: TextInputLayout
+    private lateinit var dateOfBirthLayout: TextInputLayout
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -32,49 +39,106 @@ class MyDetailsBottomSheetFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Apply rounded corners to the bottom sheet
+        // Apply rounded corners
         view.background = ContextCompat.getDrawable(requireContext(), R.drawable.bottom_sheet_rounded_corners)
 
         authManager = AuthManager.getInstance(requireContext())
 
-        // Initialize views
-        nameEditText = view.findViewById<TextInputLayout>(R.id.txtfield_name).editText as TextInputEditText
-        emailEditText = view.findViewById<TextInputLayout>(R.id.txtfield_email).editText as TextInputEditText
-        dateOfBirthEditText = view.findViewById<TextInputLayout>(R.id.txtfield_dateofbirth).editText as TextInputEditText
+        // Initialize layouts
+        nameLayout = view.findViewById(R.id.txtfield_name)
+        emailLayout = view.findViewById(R.id.txtfield_email)
+        dateOfBirthLayout = view.findViewById(R.id.txtfield_dateofbirth)
+
+        // Initialize edit texts
+        nameEditText = nameLayout.editText as TextInputEditText
+        emailEditText = emailLayout.editText as TextInputEditText
+        dateOfBirthEditText = dateOfBirthLayout.editText as TextInputEditText
+
         val closeButton = view.findViewById<ImageButton>(R.id.imageButton)
         val saveButton = view.findViewById<MaterialButton>(R.id.btn_save)
 
-        // Populate fields with current user data
+        // Populate fields
         nameEditText.setText(authManager.getUserFullName())
         emailEditText.setText(authManager.getUserEmail())
 
-        // Set up close button
+        // Setup validation listeners
+        setupValidationListeners()
+
+        // Close button
         closeButton.setOnClickListener { dismiss() }
 
-        // Set up save button
+        // Save button with validation
         saveButton.setOnClickListener {
-            val name = nameEditText.text.toString().trim()
-            val email = emailEditText.text.toString().trim()
+            if (validateAllFields()) {
+                val name = nameEditText.text.toString().trim()
+                val email = emailEditText.text.toString().trim()
 
-            if (name.isEmpty() || email.isEmpty()) {
-                Toast.makeText(context, "Please fill all required fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+                lifecycleScope.launch {
+                    val address = authManager.getUserAddress() ?: ""
+                    val result = authManager.updateUserProfile(name, email, address)
 
-            // Launch coroutine for API call
-            lifecycleScope.launch {
-                val address = authManager.getUserAddress() ?: ""
-                val result = authManager.updateUserProfile(name, email, address)
-
-                if (result) {
-                    Toast.makeText(context, "Details updated successfully", Toast.LENGTH_SHORT).show()
-                    (parentFragment as? AccountFragment)?.displayUserInfo()
-                    dismiss()
-                } else {
-                    Toast.makeText(context, "Failed to update details", Toast.LENGTH_SHORT).show()
+                    if (result) {
+                        Toast.makeText(context, "Details updated successfully", Toast.LENGTH_SHORT).show()
+                        (parentFragment as? AccountFragment)?.displayUserInfo()
+                        dismiss()
+                    } else {
+                        Toast.makeText(context, "Failed to update details", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
+    }
+    private fun setupValidationListeners() {
+        nameEditText.addTextChangedListener(createTextWatcher { validateName() })
+        emailEditText.addTextChangedListener(createTextWatcher { validateEmail() })
+    }
+
+    private fun createTextWatcher(validationFunction: () -> Boolean): TextWatcher {
+        return object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) { validationFunction() }
+        }
+    }
+
+    private fun validateName(): Boolean {
+        val name = nameEditText.text.toString().trim()
+        return when {
+            name.isEmpty() -> {
+                nameLayout.error = "Name is required"
+                false
+            }
+            name.length < 2 -> {
+                nameLayout.error = "Name must be at least 2 characters"
+                false
+            }
+            else -> {
+                nameLayout.error = null
+                true
+            }
+        }
+    }
+
+    private fun validateEmail(): Boolean {
+        val email = emailEditText.text.toString().trim()
+        return when {
+            email.isEmpty() -> {
+                emailLayout.error = "Email is required"
+                false
+            }
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                emailLayout.error = "Enter a valid email address"
+                false
+            }
+            else -> {
+                emailLayout.error = null
+                true
+            }
+        }
+    }
+
+    private fun validateAllFields(): Boolean {
+        return validateName() && validateEmail()
     }
 
     override fun getTheme(): Int {

@@ -55,8 +55,7 @@ class AccountFragment : Fragment() {
         displayUserInfo()
 
         rowOrders.setOnClickListener {
-            Toast.makeText(requireContext(), "This functionality is not available", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(requireContext(), OrdersActivity::class.java))
+            OrdersBottomSheetFragment().show(childFragmentManager, "OrdersBottomSheet")
         }
 
         rowDetails.setOnClickListener {
