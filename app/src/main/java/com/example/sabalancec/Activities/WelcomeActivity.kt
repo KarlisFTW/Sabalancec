@@ -35,14 +35,8 @@ class WelcomeActivity : AppCompatActivity() {
                     val intent = Intent(this@WelcomeActivity, WhenLoggedIn::class.java)
                     startActivity(intent)
                     finish()  // Close MainActivity
-                } else {
-                    // Invalid token, show auth fragment
-                    loadFragment(AuthOptionsFragment(), authenticationFragment)
                 }
             }
-        } else {
-            // No token, load auth fragment immediately
-            loadFragment(AuthOptionsFragment(), authenticationFragment)
         }
 
         setContentView(R.layout.activity_welcome_screen)
@@ -57,9 +51,9 @@ class WelcomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadFragment(fragment: Fragment, fragmentContainer: Int) {
-        supportFragmentManager.beginTransaction()
-            .replace(fragmentContainer, fragment)
-            .commit()
-    }
+//    private fun loadFragment(fragment: Fragment, fragmentContainer: Int) {
+//        supportFragmentManager.beginTransaction()
+//            .replace(fragmentContainer, fragment)
+//            .commit()
+//    }
 }

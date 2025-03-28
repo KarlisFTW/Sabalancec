@@ -12,6 +12,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.sabalancec.Auth.AuthManager
 import com.example.sabalancec.R
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import com.example.sabalancec.Activities.WelcomeActivity
 
 class AccountFragment : Fragment() {
 
@@ -52,28 +55,39 @@ class AccountFragment : Fragment() {
         displayUserInfo()
 
         rowOrders.setOnClickListener {
-            Toast.makeText(requireContext(), "Orders clicked", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "This functionality is not available", Toast.LENGTH_SHORT).show()
             // startActivity(Intent(requireContext(), OrdersActivity::class.java))
         }
 
         rowDetails.setOnClickListener {
-            Toast.makeText(requireContext(), "My Details clicked", Toast.LENGTH_SHORT).show()
-            // Navigate or open profile details screen
+            MyDetailsBottomSheetFragment().show(childFragmentManager, "MyDetailsBottomSheet")
         }
 
         rowAddress.setOnClickListener {
-            Toast.makeText(requireContext(), "Delivery Address clicked", Toast.LENGTH_SHORT).show()
-            // Handle address click
+            DeliveryAddressBottomSheetFragment().show(childFragmentManager, "DeliveryAddressBottomSheet")
         }
 
-       // logoutButton.setOnClickListener {
-         //   Toast.makeText(requireContext(), "Logging out...", Toast.LENGTH_SHORT).show()
-            //authManager.logout()
-            // Optionally redirect to login screen
-       // }
+        logoutButton.setOnClickListener {
+            Toast.makeText(requireContext(), "Logging out...", Toast.LENGTH_SHORT).show()
+
+            // Launch coroutine to handle logout (since logout is a suspend function)
+            viewLifecycleOwner.lifecycleScope.launch {
+                if (authManager.logout()) {
+                    Toast.makeText(requireContext(), "Logout successful", Toast.LENGTH_SHORT).show()
+
+                    // Navigate back to welcome screen
+                    val welcomeIntent = Intent(requireContext(), WelcomeActivity::class.java)
+                    welcomeIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(welcomeIntent)
+                    requireActivity().finish()
+                } else {
+                    Toast.makeText(requireContext(), "Logout failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
-    private fun displayUserInfo() {
+    fun displayUserInfo() {
         val name = authManager.getUserFullName() ?: "User Name"
         val email = authManager.getUserEmail() ?: "email@example.com"
 

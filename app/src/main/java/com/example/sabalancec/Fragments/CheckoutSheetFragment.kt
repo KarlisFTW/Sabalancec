@@ -40,7 +40,7 @@ class CheckoutBottomSheetFragment(
         }
 
         // Place order button
-        view.findViewById<MaterialButton>(R.id.btn_checkout2).setOnClickListener {
+        view.findViewById<MaterialButton>(R.id.btn_save).setOnClickListener {
             onPlaceOrder()
             dismiss()
         }

@@ -26,8 +26,9 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_auth)  // Set default layout
 
-//        val authenticationFragment = R.id.frag_authScreens
-//        val authManager = AuthManager.getInstance(this)
+        val authenticationFragment = R.id.frag_authScreens
+        loadFragment(AuthOptionsFragment(), authenticationFragment)
+        //val authManager = AuthManager.getInstance(this)
 //
 //        // First quick check with local data only
 //        if (authManager.getAccessToken() != null) {
