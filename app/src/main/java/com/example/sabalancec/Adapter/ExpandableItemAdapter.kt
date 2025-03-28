@@ -48,12 +48,16 @@ class ExpandableItemAdapter(
         // Set content visibility based on expanded state
         holder.contentLayout.visibility = if (item.isExpanded) View.VISIBLE else View.GONE
 
-        // Load content layout if expanded and not already loaded
-        if (item.isExpanded && holder.contentLayout.childCount == 0) {
+        // Always refresh content when expanded to prevent incorrect content display
+        if (item.isExpanded) {
+            // Clear any existing content
+            holder.contentLayout.removeAllViews()
+
+            // Inflate proper content view
             val contentView = LayoutInflater.from(context).inflate(item.contentLayout, holder.contentLayout, false)
             holder.contentLayout.addView(contentView)
 
-            // Handle specific content binding based on type if needed
+            // Bind the correct data
             when (item.title) {
                 "Product Details" -> bindProductDetailsContent(contentView, item.contentViewData)
                 "Nutrition" -> bindNutritionContent(contentView, item.contentViewData)
