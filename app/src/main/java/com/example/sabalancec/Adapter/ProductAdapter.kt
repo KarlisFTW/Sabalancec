@@ -1,6 +1,7 @@
 package com.example.sabalancec.Adapter
 
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,17 +40,27 @@ class ProductAdapter(private var productList: List<Product>) : RecyclerView.Adap
 
         // Load image from URL using Glide or similar library
         if (product.image.isNotEmpty()) {
-            Glide.with(holder.itemView.context)
-                .load("https://rsc97lvk0erlhrp-y8b9c67gtggi5fdi.adb.eu-zurich-1.oraclecloudapps.com/ords/warehouse/images/" + product.image)
-                .placeholder(R.drawable.carrot)
-                .error(R.drawable.carrot)
-                .into(holder.productImage)
-        } else {
-            // Use resource ID as fallback
+            val imageName = product.image.substringBeforeLast(".") // Remove file extension
+            Log.d("ProductAdapter", "Image name: $imageName")
+            val resourceId = holder.itemView.context.resources.getIdentifier(
+                imageName, "drawable", holder.itemView.context.packageName
+            )
+
+            if (resourceId != 0) {
+                // Drawable resource found
+                holder.productImage.setImageResource(resourceId)
+            } else {
+                // Drawable resource not found, use fallback
+                holder.productImage.setImageResource(R.drawable.carrot)
+            }
+        } else if (product.imageRes != 0) {
+            // Use imageRes as fallback if available
             holder.productImage.setImageResource(product.imageRes)
+        } else {
+            // Default fallback image
+            holder.productImage.setImageResource(R.drawable.carrot)
         }
 
-        holder.productImage.setImageResource(product.imageRes)
         holder.productName.text = product.name
         holder.productAmount.text = product.amount
         holder.productPrice.text = "$${String.format("%.2f", product.price)}"

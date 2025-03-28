@@ -36,37 +36,50 @@ class CategoryAdapter(
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = categoryList[position]
         holder.categoryName.text = category.name
-        holder.categoryImage.setImageResource(category.imageResId)  // Set category image
+
+        // Try to load image from drawable based on category name
+        val categoryNameLower = category.name.lowercase() // Get first word like "nuts"
+        val resourceId = holder.itemView.context.resources.getIdentifier(
+            categoryNameLower, "drawable", holder.itemView.context.packageName
+        )
+
+        if (resourceId != 0) {
+            // Drawable resource found
+            holder.categoryImage.setImageResource(resourceId)
+        } else {
+            // Use provided imageResId as fallback
+            holder.categoryImage.setImageResource(category.imageResId)
+        }
 
         // Apply the dynamic background color based on the category
         val backgroundColor = getCategoryColor(category.name)
         val backgroundDrawable = ContextCompat.getDrawable(context, R.drawable.rounded_background) as GradientDrawable
-        backgroundDrawable.setColor(backgroundColor)  // Set the background color while keeping the rounded shape
+        backgroundDrawable.setColor(backgroundColor)
         holder.categoryLayout.background = backgroundDrawable
 
         // Set up the OnClickListener for category item
         holder.categoryLayout.setOnClickListener {
-            clickListener(category)  // Trigger the clickListener with the clicked category
+            clickListener(category)
         }
     }
 
     override fun getItemCount(): Int = categoryList.size
 
-    // Function to filter categories based on search query
-    fun filter(query: String) {
-        categoryList = if (query.isEmpty()) {
-            listOf(
-                Category("Nuts, seeds, fruit", R.drawable.pistachios),
-                Category("Vegetables", R.drawable.carrot),
-                Category("Greens", R.drawable.spinach),
-                Category("Dairy", R.drawable.dairy),
-                Category("Grains", R.drawable.lentils)
-            )
-        } else {
-            categoryList.filter { it.name.contains(query, ignoreCase = true) }
-        }
-        notifyDataSetChanged()
-    }
+//    // Function to filter categories based on search query
+//    fun filter(query: String) {
+//        categoryList = if (query.isEmpty()) {
+//            listOf(
+//                Category("Nuts, seeds, fruit", R.drawable.pistachios),
+//                Category("Vegetables", R.drawable.carrot),
+//                Category("Greens", R.drawable.spinach),
+//                Category("Dairy", R.drawable.dairy),
+//                Category("Grains", R.drawable.lentils)
+//            )
+//        } else {
+//            categoryList.filter { it.name.contains(query, ignoreCase = true) }
+//        }
+//        notifyDataSetChanged()
+//    }
 
     // Function to determine the color based on category name
     private fun getCategoryColor(categoryName: String): Int {

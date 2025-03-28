@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -87,6 +88,22 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView(view: View) {
+
+        // Set up search view
+        val searchView = view.findViewById<SearchView>(R.id.searchBar)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if (!query.isNullOrEmpty()) {
+                    navigateToCatalogueWithSearch(query)
+                }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return false
+            }
+        })
+
         // Set up Categories recycler
         val categoriesRecyclerView = view.findViewById<RecyclerView>(R.id.recycler_Categories)
         categoriesRecyclerView.layoutManager =
@@ -113,6 +130,19 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         bestsellerAdapter = ProductAdapter(emptyList())
         bestsellerRecyclerView.adapter = bestsellerAdapter
+    }
+
+
+    private fun navigateToCatalogueWithSearch(query: String) {
+        val catalogueFragment = CatalogueFragment()
+        val args = Bundle()
+        args.putString("SEARCH_QUERY", query)
+        catalogueFragment.arguments = args
+
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, catalogueFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
 

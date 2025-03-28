@@ -68,6 +68,23 @@ class CatalogueFragment : Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Set up search view
+        setupSearchView(view)
+
+        // Check if we have a search query in arguments
+        arguments?.getString("SEARCH_QUERY")?.let { query ->
+            val searchView = view.findViewById<SearchView>(R.id.searchBar_catalogue)
+            // Post to ensure the SearchView is fully initialized
+            searchView.post {
+                searchView.setQuery(query, false)
+                searchProducts(query)
+            }
+        }
+    }
+
     private fun loadCategories() {
         lifecycleScope.launch {
             try {

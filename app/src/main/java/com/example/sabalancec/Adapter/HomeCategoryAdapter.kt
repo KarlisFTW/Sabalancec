@@ -29,7 +29,20 @@ class HomeCategoryAdapter(
     override fun onBindViewHolder(holder: HomeCategoryViewHolder, position: Int) {
         val category = categories[position]
         holder.categoryName.text = category.name
-        holder.categoryImage.setImageResource(category.imageResId)
+
+        // Try to load image from drawable based on category name
+        val categoryNameLower = category.name.lowercase() // Get first word like "nuts"
+        val resourceId = holder.itemView.context.resources.getIdentifier(
+            categoryNameLower, "drawable", holder.itemView.context.packageName
+        )
+
+        if (resourceId != 0) {
+            // Drawable resource found
+            holder.categoryImage.setImageResource(resourceId)
+        } else {
+            // Use provided imageResId as fallback
+            holder.categoryImage.setImageResource(category.imageResId)
+        }
 
         holder.itemView.setOnClickListener {
             onCategoryClick(category)

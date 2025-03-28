@@ -71,11 +71,13 @@ class ProductDetails : AppCompatActivity() {
 
         counterView.text = quantity.toString()
         updateTotalPrice()
+        updateDecreaseButtonColor() // Initialize button color
 
         increaseButton.setOnClickListener {
             quantity++
             counterView.text = quantity.toString()
             updateTotalPrice()
+            updateDecreaseButtonColor() // Update color after increasing
         }
 
         decreaseButton.setOnClickListener {
@@ -83,8 +85,19 @@ class ProductDetails : AppCompatActivity() {
                 quantity--
                 counterView.text = quantity.toString()
                 updateTotalPrice()
+                updateDecreaseButtonColor() // Update color after decreasing
             }
         }
+    }
+
+    private fun updateDecreaseButtonColor() {
+        val decreaseButton = findViewById<ImageButton>(R.id.btn_decrease)
+        val buttonColor = if (quantity <= 1) {
+            getColor(R.color.black)
+        } else {
+            getColor(R.color.olive_green)
+        }
+        decreaseButton.setColorFilter(buttonColor)
     }
 
     private fun updateTotalPrice() {
@@ -122,7 +135,30 @@ class ProductDetails : AppCompatActivity() {
     }
 
     private fun setupProductHeader() {
-        findViewById<ImageView>(R.id.iv_product_image)?.setImageResource(productImage)
+        // Try to load image from drawable resources
+        if (product.image.isNotEmpty()) {
+            val imageName = product.image.substringBeforeLast(".") // Remove file extension
+            val resourceId = resources.getIdentifier(
+                imageName, "drawable", packageName
+            )
+
+            if (resourceId != 0) {
+                // Drawable resource found
+                findViewById<ImageView>(R.id.iv_product_image)?.setImageResource(resourceId)
+            } else if (product.imageRes != 0) {
+                // Use imageRes as fallback
+                findViewById<ImageView>(R.id.iv_product_image)?.setImageResource(product.imageRes)
+            } else {
+                // Default fallback image
+                findViewById<ImageView>(R.id.iv_product_image)?.setImageResource(R.drawable.carrot)
+            }
+        } else {
+            // No image string, use imageRes or default
+            findViewById<ImageView>(R.id.iv_product_image)?.setImageResource(
+                if (product.imageRes != 0) product.imageRes else R.drawable.carrot
+            )
+        }
+
         findViewById<TextView>(R.id.tv_productname)?.text = productName
         findViewById<TextView>(R.id.tv_priceper)?.text = productAmount
         findViewById<TextView>(R.id.tv_total_price)?.text = productPrice

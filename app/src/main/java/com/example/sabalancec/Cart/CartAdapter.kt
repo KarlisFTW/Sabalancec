@@ -1,5 +1,6 @@
 package com.example.sabalancec.Cart
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -29,15 +30,37 @@ class CartAdapter(
                 tvCounter.text = item.quantity.toString()
                 tvCartitemPrice.text = "$${String.format("%.2f", item.getTotalPrice())}"
 
-                // Load image
+                // Set decrease button color based on quantity
+                val decreaseButtonColor = if (item.quantity <= 1) {
+                    root.context.getColor(R.color.black)
+                } else {
+                    root.context.getColor(R.color.olive_green)
+                }
+
+                // Apply the color to the decrease button icon
+                btnDecrease.setColorFilter(decreaseButtonColor)
+
+
+                // Load image from drawable resources
                 if (item.image.isNotEmpty()) {
-                    Glide.with(ivCartitemImage.context)
-                        .load("https://rsc97lvk0erlhrp-y8b9c67gtggi5fdi.adb.eu-zurich-1.oraclecloudapps.com/ords/warehouse/images/${item.image}")
-                        .placeholder(R.drawable.carrot)
-                        .error(R.drawable.carrot)
-                        .into(ivCartitemImage)
+                    val imageName = item.image.substringBeforeLast(".") // Remove file extension
+                    val resourceId = root.context.resources.getIdentifier(
+                        imageName, "drawable", root.context.packageName
+                    )
+
+                    if (resourceId != 0) {
+                        // Drawable resource found
+                        ivCartitemImage.setImageResource(resourceId)
+                    } else {
+                        // Drawable resource not found, use fallback
+                        ivCartitemImage.setImageResource(R.drawable.carrot)
+                    }
                 } else if (item.imageRes != 0) {
+                    // Use imageRes as fallback if available
                     ivCartitemImage.setImageResource(item.imageRes)
+                } else {
+                    // Default fallback image
+                    ivCartitemImage.setImageResource(R.drawable.carrot)
                 }
 
                 btnIncrease.setOnClickListener { onIncrease(item) }

@@ -128,7 +128,8 @@
                         android:layout_height="24dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="Decrease quantity"
-                        android:src="@drawable/ic_plus" />
+                        android:src="@drawable/ic_plus"
+                        android:tint="@color/olive_green" />
 
                 </LinearLayout>
 
